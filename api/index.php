@@ -167,7 +167,7 @@ case 'kametis':
             $me = one("SELECT * FROM kameti_members WHERE kameti_id = ? AND (user_id = ? OR (email IS NOT NULL AND email <> '' AND LOWER(email) = LOWER(?)))", [$row['id'], $u['id'], (string)$u['email']]);
             $row['me'] = $me;
             if ($me) {
-                $row['my_slots'] = all('SELECT slot_no, portion FROM kameti_slots WHERE kameti_id = ? AND member_id = ? ORDER BY slot_no', [$row['id'], $me['id']]);
+                $row['my_slots'] = all('SELECT slot_no, `portion` FROM kameti_slots WHERE kameti_id = ? AND member_id = ? ORDER BY slot_no', [$row['id'], $me['id']]);
                 $row['my_paid_rounds'] = array_map('intval', array_column(all('SELECT round_no FROM payments WHERE kameti_id = ? AND member_id = ?', [$row['id'], $me['id']]), 'round_no'));
             }
         }
@@ -182,7 +182,7 @@ case 'kametis/get':
     json_out([
         'kameti' => $k,
         'members' => all('SELECT * FROM kameti_members WHERE kameti_id = ? ORDER BY position, id', [$k['id']]),
-        'slots' => all('SELECT slot_no, member_id, portion FROM kameti_slots WHERE kameti_id = ? ORDER BY slot_no, id', [$k['id']]),
+        'slots' => all('SELECT slot_no, member_id, `portion` FROM kameti_slots WHERE kameti_id = ? ORDER BY slot_no, id', [$k['id']]),
         'payments' => all('SELECT * FROM payments WHERE kameti_id = ?', [$k['id']]),
         'payouts' => all('SELECT * FROM payouts WHERE kameti_id = ? ORDER BY round_no', [$k['id']]),
         'can_edit' => $u['role'] === 'superadmin' || (int)$k['organizer_id'] === (int)$u['id'],
@@ -317,7 +317,7 @@ case 'slots/save':
     // Numbers already paid out must stay exactly as they are.
     foreach (locked_rounds((int)$k['id']) as $r) {
         $rows = array_values(array_filter($rows, fn($x) => $x['slot_no'] !== $r));
-        foreach (all('SELECT slot_no, member_id, portion FROM kameti_slots WHERE kameti_id = ? AND slot_no = ?', [$k['id'], $r]) as $old) $rows[] = $old;
+        foreach (all('SELECT slot_no, member_id, `portion` FROM kameti_slots WHERE kameti_id = ? AND slot_no = ?', [$k['id'], $r]) as $old) $rows[] = $old;
     }
     write_slots((int)$k['id'], (int)$k['slots'], $rows);
     json_out(['ok' => true]);
@@ -429,7 +429,7 @@ function locked_rounds(int $kid): array {
 
 function slot_groups(int $kid): array {
     $g = [];
-    foreach (all('SELECT slot_no, member_id, portion FROM kameti_slots WHERE kameti_id = ? ORDER BY slot_no, id', [$kid]) as $r) $g[(int)$r['slot_no']][] = $r;
+    foreach (all('SELECT slot_no, member_id, `portion` FROM kameti_slots WHERE kameti_id = ? ORDER BY slot_no, id', [$kid]) as $r) $g[(int)$r['slot_no']][] = $r;
     return $g;
 }
 
@@ -439,7 +439,7 @@ function write_slots(int $kid, int $max, array $rows): void {
         $slot = (int)$r['slot_no'];
         $por = round((float)$r['portion'], 4);
         if ($slot < 1 || $slot > $max || $por <= 0 || $por > 1) continue;
-        q('INSERT INTO kameti_slots (kameti_id, slot_no, member_id, portion) VALUES (?,?,?,?)', [$kid, $slot, (int)$r['member_id'], $por]);
+        q('INSERT INTO kameti_slots (kameti_id, slot_no, member_id, `portion`) VALUES (?,?,?,?)', [$kid, $slot, (int)$r['member_id'], $por]);
     }
 }
 
