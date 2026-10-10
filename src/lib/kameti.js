@@ -1,11 +1,10 @@
 // Kameti domain logic shared by every screen.
-import { ListOrdered, Dices, Gavel, Split, HeartHandshake } from 'lucide-react'
+import { ListOrdered, Dices, Gavel, HeartHandshake } from 'lucide-react'
 
 export const TYPES = {
   fixed: { icon: ListOrdered, grad: 'from-violet-500 to-fuchsia-500' },
   qurandazi: { icon: Dices, grad: 'from-pink-500 to-orange-400' },
   boli: { icon: Gavel, grad: 'from-amber-400 to-orange-500' },
-  half: { icon: Split, grad: 'from-cyan-500 to-emerald-500' },
   zaroorat: { icon: HeartHandshake, grad: 'from-rose-500 to-pink-500' },
 }
 export const TYPE_KEYS = Object.keys(TYPES)
@@ -16,7 +15,6 @@ export const TYPE_DEFAULTS = {
   fixed: { order_basis: 'manual' },
   qurandazi: { draw_mode: 'all_at_once', draw_in_front: true },
   boli: { min_bid: 0, max_bid_percent: 30, bid_step: 500, profit_sharing: 'all_members', last_no_bid: true },
-  half: { pairing: 'auto' },
   zaroorat: { require_reason: true, emergency_priority: true },
 }
 
@@ -66,50 +64,130 @@ export function currentRound(k) {
   return r
 }
 
-export function calc(k, members = [], payments = [], payouts = []) {
+// Portion labels used everywhere (1, ½, ⅓ …)
+export const PORTIONS = [1, 0.75, 2 / 3, 0.5, 1 / 3, 0.25]
+export function frac(p) {
+  const x = n(p)
+  const map = [[1, '1'], [0.75, '¾'], [2 / 3, '⅔'], [0.5, '½'], [1 / 3, '⅓'], [0.25, '¼']]
+  for (const [v, l] of map) if (Math.abs(x - v) < 0.01) return l
+  return String(+x.toFixed(2))
+}
+// "2½" style total for a member holding several numbers
+export function numbersLabel(total) {
+  const whole = Math.floor(total + 0.001)
+  const rest = total - whole
+  if (rest < 0.01) return String(whole)
+  return `${whole || ''}${frac(rest)}`
+}
+
+/**
+ * slots = flat rows [{slot_no, member_id, portion}]
+ * Several rows on one slot_no = split number. A member on several slot_no = several numbers.
+ */
+export function calc(k, members = [], payments = [], payouts = [], slots = []) {
   const cfg = { ...TYPE_DEFAULTS.common, ...(TYPE_DEFAULTS[k.type] || {}), ...(k.config || {}) }
-  const slots = n(k.slots)
+  const total = n(k.slots)
   const amount = n(k.amount)
-  const pot = amount * slots
+  const pot = amount * total
   const fee = Math.round((pot * n(cfg.organizer_fee)) / 100)
-  const shares = members.reduce((s, m) => s + n(m.share || 1), 0)
+  const byId = Object.fromEntries(members.map((m) => [n(m.id), m]))
   const payoutMap = Object.fromEntries(payouts.map((p) => [n(p.round_no), p]))
-  const paid = new Set(payments.map((p) => `${p.member_id}:${p.round_no}`))
-  const cur = Math.min(currentRound(k), slots || 1)
+  const paid = new Set(payments.map((p) => `${n(p.member_id)}:${n(p.round_no)}`))
+  const cur = Math.min(currentRound(k), total || 1)
+
+  const bySlot = {}
+  for (const s of slots) (bySlot[n(s.slot_no)] ||= []).push({ ...s, member_id: n(s.member_id), portion: n(s.portion), member: byId[n(s.member_id)] })
+  const shareOf = (mid) => slots.filter((s) => n(s.member_id) === n(mid)).reduce((a, s) => a + n(s.portion), 0)
+  const numbersOf = (mid) => slots.filter((s) => n(s.member_id) === n(mid)).map((s) => ({ slot_no: n(s.slot_no), portion: n(s.portion) })).sort((a, b) => a.slot_no - b.slot_no)
+  const slotSum = (r) => (bySlot[r] || []).reduce((a, h) => a + h.portion, 0)
+  const isLocked = (r) => n(payoutMap[r]?.given) === 1
+  const isDecided = (r) => !!payoutMap[r]
 
   const dividend = (r) => {
     const p = payoutMap[r]
     if (k.type !== 'boli' || !p || !n(p.bid_amount) || cfg.profit_sharing === 'organizer') return 0
-    return n(p.bid_amount) / slots
+    return n(p.bid_amount) / total
   }
-  const dueFor = (m, r) => Math.max(0, Math.round(amount * n(m.share || 1) - dividend(r) * n(m.share || 1)))
+  const dueFor = (m, r) => Math.max(0, Math.round((amount - dividend(r)) * shareOf(m.id)))
   const payoutFor = (r) => {
     const p = payoutMap[r]
     if (p && n(p.amount)) return n(p.amount)
     return pot - fee - n(p?.bid_amount)
   }
-  const isPaid = (mid, r) => paid.has(`${mid}:${r}`)
+  const isPaid = (mid, r) => paid.has(`${n(mid)}:${r}`)
   const roundCollected = (r) => payments.filter((p) => n(p.round_no) === r).reduce((s, p) => s + n(p.amount), 0)
-  const roundPaidCount = (r) => members.filter((m) => isPaid(m.id, r)).length
-  const receiversOf = (r) => members.filter((m) => n(m.turn_no) === r)
+  const payers = members.filter((m) => shareOf(m.id) > 0)
+  const roundPaidCount = (r) => payers.filter((m) => isPaid(m.id, r)).length
+  const receiversOf = (r) => (bySlot[r] || []).filter((h) => h.member)
   const collected = payments.reduce((s, p) => s + n(p.amount), 0)
   const given = payouts.filter((p) => n(p.given)).length
-  const expectedToDate = members.reduce((s, m) => {
-    let t = 0
-    for (let r = 1; r <= cur; r++) t += dueFor(m, r)
-    return s + t
-  }, 0)
-  const pending = Math.max(0, expectedToDate - collected)
-  const unpaidThisRound = members.filter((m) => !isPaid(m.id, cur))
-  const withoutTurn = members.filter((m) => !m.turn_no)
+  let expectedToDate = 0
+  for (const m of payers) for (let r = 1; r <= cur; r++) expectedToDate += dueFor(m, r)
+  const badSlots = Array.from({ length: total }, (_, i) => i + 1).filter((r) => Math.abs(slotSum(r) - 1) > 0.01)
 
   return {
-    cfg, slots, amount, pot, fee, shares, cur, collected, given, pending, expectedToDate,
-    endDate: roundDate(k, slots), unpaidThisRound, withoutTurn,
-    dividend, dueFor, payoutFor, isPaid, roundCollected, roundPaidCount, receiversOf, payoutMap,
-    progress: slots ? Math.round((given / slots) * 100) : 0,
-    sharesOk: Math.abs(shares - slots) < 0.01,
+    cfg, slots: total, amount, pot, fee, cur, collected, given, expectedToDate,
+    pending: Math.max(0, expectedToDate - collected),
+    endDate: roundDate(k, total), bySlot, payers,
+    shareOf, numbersOf, slotSum, isLocked, isDecided, dividend, dueFor, payoutFor, isPaid,
+    roundCollected, roundPaidCount, receiversOf, payoutMap, badSlots,
+    progress: total ? Math.round((given / total) * 100) : 0,
+    slotsOk: badSlots.length === 0,
   }
+}
+
+// Months between two "YYYY-MM" values, inclusive.
+export function monthSpan(from, to) {
+  if (!from || !to) return 0
+  const [y1, m1] = from.split('-').map(Number)
+  const [y2, m2] = to.split('-').map(Number)
+  return (y2 - y1) * 12 + (m2 - m1) + 1
+}
+export function addMonths(ym, k) {
+  const [y, m] = ym.split('-').map(Number)
+  const d = new Date(y, m - 1 + k, 1)
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+}
+export function monthName(d, lang = 'en') {
+  const date = d instanceof Date ? d : parseDate(d)
+  return date.toLocaleDateString(lang === 'ur' ? 'ur-PK' : 'en-GB', { month: 'long', year: 'numeric' })
+}
+export function roundLabel(k, r, lang) {
+  return k.frequency === 'monthly' ? monthName(roundDate(k, r), lang) : fmtDate(roundDate(k, r), lang)
+}
+
+/**
+ * Build slots from members with a "numbers" count (0.5 steps allowed).
+ * Whole numbers get their own slot; leftover halves are paired into split slots.
+ * Returns [{slot_no, holders: [{key, portion}]}]
+ */
+export function buildSlots(members) {
+  const whole = []
+  const parts = []
+  members.forEach((m) => {
+    const c = n(m.numbers)
+    const w = Math.floor(c + 0.001)
+    for (let i = 0; i < w; i++) whole.push([{ key: m.key, portion: 1 }])
+    const rest = +(c - w).toFixed(4)
+    if (rest > 0.001) parts.push({ key: m.key, portion: rest })
+  })
+  const groups = [...whole]
+  let open = null
+  for (const p of parts) {
+    if (!open) { open = [p]; continue }
+    const sum = open.reduce((a, x) => a + x.portion, 0)
+    if (sum + p.portion <= 1.0001) open.push(p)
+    else { groups.push(open); open = [p] }
+    if (Math.abs(open.reduce((a, x) => a + x.portion, 0) - 1) < 0.01) { groups.push(open); open = null }
+  }
+  if (open) groups.push(open)
+  return groups.map((holders, i) => ({ slot_no: i + 1, holders }))
+}
+
+export function shuffleArr(a) {
+  const x = [...a]
+  for (let i = x.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [x[i], x[j]] = [x[j], x[i]] }
+  return x
 }
 
 export function initials(name = '') {

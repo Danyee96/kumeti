@@ -19,7 +19,7 @@ export const LANDING_DEFAULTS = {
   stats: {
     show: true,
     items: [
-      { value: '5', label: L('Kameti types', 'کمیٹی کی اقسام') },
+      { value: '4', label: L('Kameti types', 'کمیٹی کی اقسام') },
       { value: '1 tap', label: L('Qurandazi', 'قرعہ اندازی') },
       { value: '2', label: L('Languages', 'زبانیں') },
       { value: '0', label: L('Registers needed', 'رجسٹر کی ضرورت') },
@@ -40,22 +40,22 @@ export const LANDING_DEFAULTS = {
       { icon: 'BellRing', title: L('WhatsApp reminders', 'واٹس ایپ یاد دہانی'), desc: L('Send a polite reminder to late payers straight on WhatsApp.', 'دیر کرنے والوں کو واٹس ایپ پر شائستہ یاد دہانی۔') },
       { icon: 'Languages', title: L('Urdu and English', 'اردو اور انگریزی'), desc: L('Switch language anytime. Big buttons, clear icons, easy for everyone.', 'جب چاہیں زبان بدلیں۔ بڑے بٹن، واضح نشان، سب کے لیے آسان۔') },
       { icon: 'Calculator', title: L('Instant calculation', 'فوری حساب'), desc: L('Enter amount and duration — pot, end date and schedule appear instantly.', 'رقم اور مدت ڈالیں — کل رقم، آخری تاریخ اور شیڈول فوراً۔') },
-      { icon: 'ShieldCheck', title: L('Member logins', 'ممبر لاگ اِن'), desc: L('Members see their own turn, payments and history. Total transparency.', 'ممبر اپنی باری، قسطیں اور تاریخچہ خود دیکھیں۔ مکمل شفافیت۔') },
+      { icon: 'MessageCircle', title: L('Share on WhatsApp', 'واٹس ایپ پر شیئر'), desc: L('Every member gets a picture card with their numbers, months and amounts.', 'ہر ممبر کو اس کے نمبر، مہینے اور رقم والی تصویر۔') },
     ],
   },
   types: {
     show: true,
     title: L('Every kind of kameti', 'ہر قسم کی کمیٹی'),
-    subtitle: L('From simple monthly committees to boli and half-shares.', 'سادہ ماہانہ کمیٹی سے بولی اور آدھے حصے تک۔'),
+    subtitle: L('Any type — and any number can be split between 2 or 3 people.', 'کوئی بھی قسم — اور کوئی بھی نمبر 2 یا 3 لوگوں میں بانٹا جا سکتا ہے۔'),
   },
   steps: {
     show: true,
     title: L('Start in 3 minutes', '3 منٹ میں شروع'),
     items: [
-      { title: L('Pick a type', 'قسم چنیں'), desc: L('Fixed, qurandazi, boli, half-share or need based.', 'مقررہ، قرعہ اندازی، بولی، آدھا حصہ یا ضرورت۔') },
+      { title: L('Pick a type', 'قسم چنیں'), desc: L('Fixed, qurandazi, boli or need based.', 'مقررہ، قرعہ اندازی، بولی یا ضرورت۔') },
       { title: L('Amount and duration', 'رقم اور مدت'), desc: L('Kumeti calculates everything for you.', 'کمیٹی ایپ سارا حساب خود کرے گی۔') },
       { title: L('Add members', 'ممبرز شامل کریں'), desc: L('Just names is enough. Paste a whole list at once.', 'صرف نام کافی ہیں۔ پوری لسٹ ایک ساتھ۔') },
-      { title: L('Shuffle and go', 'قرعہ اندازی اور شروع'), desc: L('Tap shuffle, share the turns, start collecting.', 'قرعہ اندازی کریں، باریاں بتائیں، قسطیں جمع کریں۔') },
+      { title: L('Shuffle and share', 'قرعہ اندازی اور شیئر'), desc: L('Set the numbers, share each member\'s card on WhatsApp.', 'نمبر طے کریں، ہر ممبر کا کارڈ واٹس ایپ پر بھیجیں۔') },
     ],
   },
   testimonials: {

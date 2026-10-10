@@ -114,7 +114,34 @@ function schema(string $driver): array {
             given_at VARCHAR(25) NULL,
             note VARCHAR(255) NULL
         )$tail",
+        // One row per (number, holder). Several rows with the same slot_no = a split number.
+        // One member on several slot_no = a member with more than one number.
+        "CREATE TABLE IF NOT EXISTS kameti_slots (
+            id $id,
+            kameti_id $ref NOT NULL,
+            slot_no INT NOT NULL,
+            member_id $ref NOT NULL,
+            portion DECIMAL(6,4) NOT NULL DEFAULT 1
+        )$tail",
     ];
+}
+
+const SCHEMA_VERSION = 2;
+
+// Creates missing tables and moves old turn_no/share data into kameti_slots.
+function migrate(PDO $pdo, string $driver): void {
+    try {
+        $v = $pdo->query("SELECT svalue FROM settings WHERE skey = 'schema_version'")->fetchColumn();
+    } catch (Throwable $e) { $v = false; }
+    if ((int)json_decode((string)$v) >= SCHEMA_VERSION) return;
+    foreach (schema($driver) as $sql) $pdo->exec($sql);
+    if ((int)$pdo->query('SELECT COUNT(*) FROM kameti_slots')->fetchColumn() === 0) {
+        $rows = $pdo->query('SELECT id, kameti_id, turn_no, share FROM kameti_members WHERE turn_no IS NOT NULL')->fetchAll(PDO::FETCH_ASSOC);
+        $ins = $pdo->prepare('INSERT INTO kameti_slots (kameti_id, slot_no, member_id, portion) VALUES (?,?,?,?)');
+        foreach ($rows as $r) $ins->execute([$r['kameti_id'], $r['turn_no'], $r['id'], $r['share'] ?: 1]);
+    }
+    $pdo->prepare('DELETE FROM settings WHERE skey = ?')->execute(['schema_version']);
+    $pdo->prepare('INSERT INTO settings (skey, svalue) VALUES (?, ?)')->execute(['schema_version', (string)SCHEMA_VERSION]);
 }
 
 function now(): string { return gmdate('Y-m-d H:i:s'); }
@@ -122,6 +149,7 @@ function now(): string { return gmdate('Y-m-d H:i:s'); }
 function install_database(array $cfg, bool $seed = true): void {
     $pdo = connect($cfg);
     foreach (schema($cfg['driver']) as $sql) $pdo->exec($sql);
+    migrate($pdo, $cfg['driver']);
     if ($seed && (int)$pdo->query('SELECT COUNT(*) FROM users')->fetchColumn() === 0) {
         seed_demo($pdo);
     }
@@ -140,23 +168,29 @@ function seed_demo(PDO $pdo): void {
     $k->execute([$orgId, 'Mohalla Committee 2026', 'qurandazi', 'monthly', 10000, 6, $start, 'active',
         json_encode(['draw_mode' => 'all_at_once', 'due_day' => 5, 'late_fee' => 200, 'organizer_fee' => 0]), 'Demo kameti', now()]);
     $kid = (int)$pdo->lastInsertId();
-    $names = [['Bilal Member', $memUserId, 'member@kumeti.pk'], ['Ayesha Khan', null, null], ['Usman Ali', null, null], ['Fatima Noor', null, null], ['Hamza Raza', null, null], ['Sana Iqbal', null, null]];
-    $turns = [3, 1, 5, 2, 6, 4];
+    // Bilal holds 2 numbers, number 4 is split between Sana and Usman.
+    $names = [['Ayesha Khan', null, null], ['Fatima Noor', null, null], ['Bilal Member', $memUserId, 'member@kumeti.pk'], ['Sana Iqbal', null, null], ['Usman Ali', null, null], ['Hamza Raza', null, null]];
     $m = $pdo->prepare('INSERT INTO kameti_members (kameti_id,user_id,name,phone,email,share,turn_no,position,created_at) VALUES (?,?,?,?,?,?,?,?,?)');
     $ids = [];
     foreach ($names as $i => $n) {
-        $m->execute([$kid, $n[1], $n[0], '0300' . rand(1000000, 9999999), $n[2], 1, $turns[$i], $i, now()]);
+        $m->execute([$kid, $n[1], $n[0], '0300' . rand(1000000, 9999999), $n[2], 1, null, $i, now()]);
         $ids[] = (int)$pdo->lastInsertId();
     }
+    [$ayesha, $fatima, $bilal, $sana, $usman, $hamza] = $ids;
+    $holdings = [[1, $ayesha, 1], [2, $fatima, 1], [3, $bilal, 1], [4, $sana, .5], [4, $usman, .5], [5, $hamza, 1], [6, $bilal, 1]];
+    $h = $pdo->prepare('INSERT INTO kameti_slots (kameti_id, slot_no, member_id, portion) VALUES (?,?,?,?)');
+    foreach ($holdings as [$slot, $mid, $por]) $h->execute([$kid, $slot, $mid, $por]);
+    $due = [$ayesha => 10000, $fatima => 10000, $bilal => 20000, $sana => 5000, $usman => 5000, $hamza => 10000];
     $p = $pdo->prepare('INSERT INTO payments (kameti_id,member_id,round_no,amount,paid_at) VALUES (?,?,?,?,?)');
-    foreach ($ids as $i => $mid) {
-        $p->execute([$kid, $mid, 1, 10000, now()]);
-        $p->execute([$kid, $mid, 2, 10000, now()]);
-        if ($i < 3) $p->execute([$kid, $mid, 3, 10000, now()]);
+    $i = 0;
+    foreach ($due as $mid => $amt) {
+        $p->execute([$kid, $mid, 1, $amt, now()]);
+        $p->execute([$kid, $mid, 2, $amt, now()]);
+        if ($i++ < 3) $p->execute([$kid, $mid, 3, $amt, now()]);
     }
     $po = $pdo->prepare('INSERT INTO payouts (kameti_id,round_no,member_id,amount,bid_amount,given,given_at) VALUES (?,?,?,?,?,?,?)');
-    $po->execute([$kid, 1, $ids[1], 60000, 0, 1, now()]);
-    $po->execute([$kid, 2, $ids[3], 60000, 0, 1, now()]);
+    $po->execute([$kid, 1, null, 60000, 0, 1, now()]);
+    $po->execute([$kid, 2, null, 60000, 0, 1, now()]);
 }
 
 // ---------- HTTP helpers ----------
@@ -193,6 +227,7 @@ function db(): PDO {
     }
     if (!$cfg) fail('NOT_INSTALLED', 503);
     $pdo = connect($cfg);
+    migrate($pdo, $cfg['driver'] ?? 'mysql');
     return $pdo;
 }
 

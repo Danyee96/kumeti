@@ -4,7 +4,7 @@ import { Crown, Check, X, ChevronRight, Wallet, Sparkles } from 'lucide-react'
 import { api } from '../../lib/api'
 import { useAuth } from '../../lib/auth'
 import { useLang } from '../../lib/i18n'
-import { TYPES, money, n, roundDate, fmtDate, currentRound } from '../../lib/kameti'
+import { TYPES, money, n, currentRound, roundLabel, frac } from '../../lib/kameti'
 import { Spinner, Empty, Badge, cx } from '../../components/ui'
 import { LogoMark } from '../../components/Logo'
 
@@ -31,9 +31,10 @@ export default function MemberDashboard() {
           {list.map((k) => {
             const T = TYPES[k.type] || TYPES.fixed
             const cur = Math.min(currentRound(k), n(k.slots))
-            const turn = n(k.me?.turn_no)
+            const mine = (k.my_slots || []).map((x) => ({ slot_no: n(x.slot_no), portion: n(x.portion) }))
+            const share = mine.reduce((a, x) => a + x.portion, 0)
+            const nextNum = mine.find((x) => x.slot_no >= cur) || mine[mine.length - 1]
             const paid = (k.my_paid_rounds || []).includes(cur)
-            const share = n(k.me?.share || 1)
             return (
               <Link key={k.id} to={`/kameti/${k.id}`} className="card group overflow-hidden p-0 transition hover:-translate-y-1 hover:shadow-glow">
                 <div className={cx('relative bg-gradient-to-br p-5 text-white', T.grad)}>
@@ -45,7 +46,7 @@ export default function MemberDashboard() {
                 <div className="grid grid-cols-3 divide-x divide-violet-50 rtl:divide-x-reverse">
                   <div className="p-4 text-center">
                     <Crown className="mx-auto h-6 w-6 text-amber-500" />
-                    <div className="num mt-1 text-3xl font-bold">{turn || '—'}</div>
+                    <div className="num mt-1 flex flex-wrap justify-center gap-1 text-2xl font-bold">{mine.length ? mine.map((x) => <span key={x.slot_no}>#{x.slot_no}{x.portion < 0.99 && <small className="text-sm">{frac(x.portion)}</small>}</span>) : '—'}</div>
                     <div className="text-xs font-semibold text-ink/50">{t('yourTurn')}</div>
                   </div>
                   <div className="p-4 text-center">
@@ -60,7 +61,7 @@ export default function MemberDashboard() {
                   </div>
                 </div>
                 <div className="flex items-center justify-between border-t border-violet-50 px-5 py-3 text-sm">
-                  <span className="text-ink/60">{turn ? fmtDate(roundDate(k, turn), lang) : t('noTurn')}</span>
+                  <span className="text-ink/60">{nextNum ? `#${nextNum.slot_no} · ${roundLabel(k, nextNum.slot_no, lang)}` : t('noTurn')}</span>
                   <Badge tone="violet">{t('view')}<ChevronRight className="h-3 w-3 flip-rtl" /></Badge>
                 </div>
               </Link>

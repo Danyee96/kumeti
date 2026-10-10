@@ -10,7 +10,15 @@ React (Vite + Tailwind) frontend + PHP API + MySQL. Runs on **any Hostinger web 
 | Member | member@kumeti.pk / member123 | See own turn, dues, payments, schedule |
 
 ## Kameti types
-Fixed order (muqarrar tarteeb) · Lucky draw (qurandazi — all at once or every round) · Auction (boli — bid discount shared) · Half share (aadha hissa) · Need based (zaroorat).
+Fixed order (muqarrar tarteeb) · Lucky draw (qurandazi — all at once or every round) · Auction (boli — bid discount shared) · Need based (zaroorat).
+
+## Numbers (slots)
+- One person can hold several numbers (e.g. Ali has #1 and #6).
+- Any number can be split between 2–4 people (½ + ½, ⅓ × 3, ¾ + ¼).
+- Numbers move up/down; numbers already paid out are locked.
+- **Share tab**: full chart image for the group + a branded card per member (their numbers, month, amount, start/end month, monthly qist, join link) — shares straight to WhatsApp from the phone, or downloads as PNG.
+
+Simple flow: **Start a new kameti → type → name + start/end month → amount per number (total auto) → people + how many numbers each → arrange numbers → create → share.**
 
 ---
 

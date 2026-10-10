@@ -157,19 +157,18 @@ case 'kametis':
             (SELECT COALESCE(SUM(p.amount),0) FROM payments p WHERE p.kameti_id = k.id) AS collected,
             (SELECT COUNT(*) FROM payouts po WHERE po.kameti_id = k.id AND po.given = 1) AS payouts_done
             FROM kametis k LEFT JOIN users u ON u.id = k.organizer_id';
-    if ($u['role'] === 'superadmin') {
-        $rows = all("$sql ORDER BY k.id DESC");
-    } elseif ($u['role'] === 'organizer') {
-        $rows = all("$sql WHERE k.organizer_id = ? ORDER BY k.id DESC", [$u['id']]);
-    } else {
-        $rows = all("$sql WHERE k.id IN (SELECT kameti_id FROM kameti_members WHERE user_id = ? OR (email IS NOT NULL AND email <> '' AND LOWER(email) = LOWER(?))) ORDER BY k.id DESC", [$u['id'], (string)$u['email']]);
-    }
+    $mine = "SELECT kameti_id FROM kameti_members WHERE user_id = ? OR (email IS NOT NULL AND email <> '' AND LOWER(email) = LOWER(?))";
+    if ($u['role'] === 'superadmin') $rows = all("$sql ORDER BY k.id DESC");
+    elseif ($u['role'] === 'organizer') $rows = all("$sql WHERE k.organizer_id = ? ORDER BY k.id DESC", [$u['id']]);
+    else $rows = all("$sql WHERE k.id IN ($mine) ORDER BY k.id DESC", [$u['id'], (string)$u['email']]);
     foreach ($rows as &$row) {
         $row['config'] = json_decode((string)$row['config'], true) ?: [];
         if ($u['role'] === 'member') {
-            $row['me'] = one("SELECT * FROM kameti_members WHERE kameti_id = ? AND (user_id = ? OR (email IS NOT NULL AND email <> '' AND LOWER(email) = LOWER(?)))", [$row['id'], $u['id'], (string)$u['email']]);
-            if ($row['me']) {
-                $row['my_paid_rounds'] = array_map('intval', array_column(all('SELECT round_no FROM payments WHERE kameti_id = ? AND member_id = ?', [$row['id'], $row['me']['id']]), 'round_no'));
+            $me = one("SELECT * FROM kameti_members WHERE kameti_id = ? AND (user_id = ? OR (email IS NOT NULL AND email <> '' AND LOWER(email) = LOWER(?)))", [$row['id'], $u['id'], (string)$u['email']]);
+            $row['me'] = $me;
+            if ($me) {
+                $row['my_slots'] = all('SELECT slot_no, portion FROM kameti_slots WHERE kameti_id = ? AND member_id = ? ORDER BY slot_no', [$row['id'], $me['id']]);
+                $row['my_paid_rounds'] = array_map('intval', array_column(all('SELECT round_no FROM payments WHERE kameti_id = ? AND member_id = ?', [$row['id'], $me['id']]), 'round_no'));
             }
         }
     }
@@ -180,11 +179,10 @@ case 'kametis/get':
     $k = kameti_for((int)in('id'), $u);
     $k['config'] = json_decode((string)$k['config'], true) ?: [];
     $k['organizer'] = one('SELECT id, name, phone, email FROM users WHERE id = ?', [$k['organizer_id']]);
-    $members = all('SELECT * FROM kameti_members WHERE kameti_id = ? ORDER BY position, id', [$k['id']]);
-    $userIds = array_filter(array_column($members, 'user_id'));
     json_out([
         'kameti' => $k,
-        'members' => $members,
+        'members' => all('SELECT * FROM kameti_members WHERE kameti_id = ? ORDER BY position, id', [$k['id']]),
+        'slots' => all('SELECT slot_no, member_id, portion FROM kameti_slots WHERE kameti_id = ? ORDER BY slot_no, id', [$k['id']]),
         'payments' => all('SELECT * FROM payments WHERE kameti_id = ?', [$k['id']]),
         'payouts' => all('SELECT * FROM payouts WHERE kameti_id = ? ORDER BY round_no', [$k['id']]),
         'can_edit' => $u['role'] === 'superadmin' || (int)$k['organizer_id'] === (int)$u['id'],
@@ -202,7 +200,7 @@ case 'kametis/save':
     $config = in('config', []);
     $notes = clean_str(in('notes'), 2000);
     if (!$title || $amount <= 0 || $slots < 2 || $slots > 120) fail('MISSING_FIELDS');
-    if (!in_array($type, ['fixed', 'qurandazi', 'boli', 'half', 'zaroorat'], true)) fail('BAD_TYPE');
+    if (!in_array($type, ['fixed', 'qurandazi', 'boli', 'zaroorat'], true)) fail('BAD_TYPE');
     if (!in_array($freq, ['daily', 'weekly', 'monthly'], true)) fail('BAD_FREQUENCY');
     if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $start)) fail('BAD_DATE');
     $cfgJson = json_encode(is_array($config) ? $config : [], JSON_UNESCAPED_UNICODE);
@@ -216,21 +214,27 @@ case 'kametis/save':
         q('INSERT INTO kametis (organizer_id,title,type,frequency,amount,slots,start_date,status,config,notes,created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?)',
             [$u['id'], $title, $type, $freq, $amount, $slots, $start, 'active', $cfgJson, $notes, now()]);
         $id = (int)db()->lastInsertId();
-        $members = in('members', []);
-        if (is_array($members)) {
-            foreach (array_values($members) as $i => $m) {
-                $mn = clean_str($m['name'] ?? null, 120);
-                if (!$mn) continue;
-                add_member($id, $mn, clean_str($m['phone'] ?? null, 40), clean_str($m['email'] ?? null, 160), (float)($m['share'] ?? 1), isset($m['turn_no']) && $m['turn_no'] !== '' ? (int)$m['turn_no'] : null, $i);
+        // members: [{name, phone, email}], numbers: [{slot_no, holders: [{m: memberIndex, portion}]}]
+        $map = [];
+        foreach (array_values((array)in('members', [])) as $i => $m) {
+            $mn = clean_str($m['name'] ?? null, 120);
+            if (!$mn) continue;
+            $map[$i] = add_member($id, $mn, clean_str($m['phone'] ?? null, 40), clean_str($m['email'] ?? null, 160), $i);
+        }
+        $ins = [];
+        foreach ((array)in('numbers', []) as $sl) {
+            foreach ((array)($sl['holders'] ?? []) as $h) {
+                if (isset($map[$h['m'] ?? -1])) $ins[] = ['slot_no' => (int)$sl['slot_no'], 'member_id' => $map[$h['m']], 'portion' => (float)$h['portion']];
             }
         }
+        write_slots($id, $slots, $ins);
     }
     json_out(['id' => $id]);
 
 case 'kametis/delete':
     $u = require_user(['organizer', 'superadmin']);
     $k = kameti_for((int)in('id'), $u, true);
-    foreach (['payments', 'payouts', 'kameti_members'] as $t) q("DELETE FROM $t WHERE kameti_id = ?", [$k['id']]);
+    foreach (['payments', 'payouts', 'kameti_slots', 'kameti_members'] as $t) q("DELETE FROM $t WHERE kameti_id = ?", [$k['id']]);
     q('DELETE FROM kametis WHERE id = ?', [$k['id']]);
     json_out(['ok' => true]);
 
@@ -243,16 +247,13 @@ case 'members/save':
     if (!$name) fail('MISSING_FIELDS');
     $phone = clean_str(in('phone'), 40);
     $email = clean_str(in('email'), 160);
-    $share = (float)in('share', 1) === 0.5 ? 0.5 : 1.0;
-    $turn = in('turn_no');
-    $turn = ($turn === null || $turn === '') ? null : (int)$turn;
     if ($id) {
         $linked = $email ? one('SELECT id FROM users WHERE LOWER(email) = LOWER(?)', [$email]) : null;
-        q('UPDATE kameti_members SET name=?, phone=?, email=?, share=?, turn_no=?, user_id = COALESCE(?, user_id) WHERE id=? AND kameti_id=?',
-            [$name, $phone, $email, $share, $turn, $linked['id'] ?? null, $id, $k['id']]);
+        q('UPDATE kameti_members SET name=?, phone=?, email=?, user_id = COALESCE(?, user_id) WHERE id=? AND kameti_id=?',
+            [$name, $phone, $email, $linked['id'] ?? null, $id, $k['id']]);
     } else {
         $pos = (int)one('SELECT COALESCE(MAX(position), -1) + 1 p FROM kameti_members WHERE kameti_id = ?', [$k['id']])['p'];
-        $id = add_member((int)$k['id'], $name, $phone, $email, $share, $turn, $pos);
+        $id = add_member((int)$k['id'], $name, $phone, $email, $pos);
     }
     json_out(['member' => one('SELECT * FROM kameti_members WHERE id = ?', [$id])]);
 
@@ -261,73 +262,11 @@ case 'members/delete':
     $k = kameti_for((int)in('kameti_id'), $u, true);
     $mid = (int)in('id');
     q('DELETE FROM payments WHERE kameti_id = ? AND member_id = ?', [$k['id'], $mid]);
-    q('UPDATE payouts SET member_id = NULL WHERE kameti_id = ? AND member_id = ?', [$k['id'], $mid]);
+    q('DELETE FROM kameti_slots WHERE kameti_id = ? AND member_id = ?', [$k['id'], $mid]);
     q('DELETE FROM kameti_members WHERE id = ? AND kameti_id = ?', [$mid, $k['id']]);
     json_out(['ok' => true]);
 
-case 'members/order':
-    // Body: { kameti_id, turns: { member_id: turn_no|null } }
-    $u = require_user(['organizer', 'superadmin']);
-    $k = kameti_for((int)in('kameti_id'), $u, true);
-    $turns = in('turns', []);
-    if (!is_array($turns)) fail('MISSING_FIELDS');
-    foreach ($turns as $mid => $t) {
-        q('UPDATE kameti_members SET turn_no = ? WHERE id = ? AND kameti_id = ?', [$t === null || $t === '' ? null : (int)$t, (int)$mid, $k['id']]);
-    }
-    json_out(['ok' => true]);
-
-case 'members/shuffle':
-    // Qurandazi: random turn for every member (or only those without a turn when mode = remaining)
-    $u = require_user(['organizer', 'superadmin']);
-    $k = kameti_for((int)in('kameti_id'), $u, true);
-    $members = all('SELECT * FROM kameti_members WHERE kameti_id = ? ORDER BY position, id', [$k['id']]);
-    $given = array_map('intval', array_column(all('SELECT round_no FROM payouts WHERE kameti_id = ? AND given = 1', [$k['id']]), 'round_no'));
-    // Keep turns that already received a payout; shuffle everyone else into the remaining turns.
-    $locked = [];
-    $free = [];
-    foreach ($members as $m) {
-        if ($m['turn_no'] !== null && in_array((int)$m['turn_no'], $given, true)) $locked[(int)$m['turn_no']][] = $m;
-        else $free[] = $m;
-    }
-    // Build units: full share = 1 member, two half shares = 1 unit
-    $units = [];
-    $halfBuf = [];
-    foreach ($free as $m) {
-        if ((float)$m['share'] < 1) {
-            $halfBuf[] = $m;
-            if (count($halfBuf) === 2) { $units[] = $halfBuf; $halfBuf = []; }
-        } else $units[] = [$m];
-    }
-    if ($halfBuf) $units[] = $halfBuf;
-    for ($i = count($units) - 1; $i > 0; $i--) { $j = random_int(0, $i); [$units[$i], $units[$j]] = [$units[$j], $units[$i]]; }
-    $available = [];
-    for ($t = 1; $t <= max((int)$k['slots'], count($units) + count($locked)); $t++) if (!isset($locked[$t])) $available[] = $t;
-    foreach ($units as $idx => $unit) {
-        foreach ($unit as $m) q('UPDATE kameti_members SET turn_no = ? WHERE id = ?', [$available[$idx] ?? null, $m['id']]);
-    }
-    json_out(['ok' => true]);
-
-case 'members/draw':
-    // Monthly draw: pick ONE random unit for the given round among members without a turn.
-    $u = require_user(['organizer', 'superadmin']);
-    $k = kameti_for((int)in('kameti_id'), $u, true);
-    $round = (int)in('round_no');
-    if ($round < 1) fail('MISSING_FIELDS');
-    if (one('SELECT id FROM kameti_members WHERE kameti_id = ? AND turn_no = ?', [$k['id'], $round])) fail('ROUND_ALREADY_DRAWN');
-    $pool = all('SELECT * FROM kameti_members WHERE kameti_id = ? AND turn_no IS NULL ORDER BY position, id', [$k['id']]);
-    if (!$pool) fail('NO_MEMBERS_LEFT');
-    $units = []; $half = [];
-    foreach ($pool as $m) {
-        if ((float)$m['share'] < 1) { $half[] = $m; if (count($half) === 2) { $units[] = $half; $half = []; } }
-        else $units[] = [$m];
-    }
-    if ($half) $units[] = $half;
-    $pick = $units[random_int(0, count($units) - 1)];
-    foreach ($pick as $m) q('UPDATE kameti_members SET turn_no = ? WHERE id = ?', [$round, $m['id']]);
-    json_out(['winners' => array_map(fn($m) => ['id' => (int)$m['id'], 'name' => $m['name']], $pick)]);
-
 case 'members/login':
-    // Create a login for a member so they can see their own kameti.
     $u = require_user(['organizer', 'superadmin']);
     $k = kameti_for((int)in('kameti_id'), $u, true);
     $m = one('SELECT * FROM kameti_members WHERE id = ? AND kameti_id = ?', [(int)in('id'), $k['id']]);
@@ -347,6 +286,58 @@ case 'members/login':
     q('UPDATE kameti_members SET user_id = ? WHERE id = ?', [$uid, $m['id']]);
     json_out(['linked' => false, 'login' => $m['email'] ?: $m['phone'], 'password' => $pw]);
 
+// ================= SLOTS (numbers) =================
+case 'slots/save':
+    // Replace the whole arrangement: numbers = [{slot_no, holders: [{member_id, portion}]}]
+    $u = require_user(['organizer', 'superadmin']);
+    $k = kameti_for((int)in('kameti_id'), $u, true);
+    $rows = [];
+    foreach ((array)in('numbers', []) as $sl) {
+        foreach ((array)($sl['holders'] ?? []) as $h) $rows[] = ['slot_no' => (int)$sl['slot_no'], 'member_id' => (int)$h['member_id'], 'portion' => (float)$h['portion']];
+    }
+    $valid = array_map('intval', array_column(all('SELECT id FROM kameti_members WHERE kameti_id = ?', [$k['id']]), 'id'));
+    $rows = array_values(array_filter($rows, fn($r) => in_array($r['member_id'], $valid, true)));
+    // Numbers already paid out must stay exactly as they are.
+    foreach (locked_rounds((int)$k['id']) as $r) {
+        $rows = array_values(array_filter($rows, fn($x) => $x['slot_no'] !== $r));
+        foreach (all('SELECT slot_no, member_id, portion FROM kameti_slots WHERE kameti_id = ? AND slot_no = ?', [$k['id'], $r]) as $old) $rows[] = $old;
+    }
+    write_slots((int)$k['id'], (int)$k['slots'], $rows);
+    json_out(['ok' => true]);
+
+case 'slots/shuffle':
+    // Qurandazi: shuffle every number that has not been paid out yet.
+    $u = require_user(['organizer', 'superadmin']);
+    $k = kameti_for((int)in('kameti_id'), $u, true);
+    $locked = locked_rounds((int)$k['id']);
+    $groups = slot_groups((int)$k['id']);
+    $free = [];
+    for ($r = 1; $r <= (int)$k['slots']; $r++) if (!in_array($r, $locked, true)) $free[] = $r;
+    $bag = [];
+    foreach ($free as $r) $bag[] = $groups[$r] ?? [];
+    for ($i = count($bag) - 1; $i > 0; $i--) { $j = random_int(0, $i); [$bag[$i], $bag[$j]] = [$bag[$j], $bag[$i]]; }
+    $rows = [];
+    foreach ($groups as $r => $g) if (in_array($r, $locked, true)) foreach ($g as $h) $rows[] = $h;
+    foreach ($free as $i => $r) foreach ($bag[$i] as $h) { $h['slot_no'] = $r; $rows[] = $h; }
+    write_slots((int)$k['id'], (int)$k['slots'], $rows);
+    json_out(['ok' => true]);
+
+case 'slots/draw':
+    // Draw every round: pick a random undecided number and bring it to this round.
+    $u = require_user(['organizer', 'superadmin']);
+    $k = kameti_for((int)in('kameti_id'), $u, true);
+    $round = (int)in('round_no');
+    $decided = array_map('intval', array_column(all('SELECT round_no FROM payouts WHERE kameti_id = ?', [$k['id']]), 'round_no'));
+    if ($round < 1 || in_array($round, $decided, true)) fail('ROUND_ALREADY_DRAWN');
+    $pool = [];
+    for ($r = $round; $r <= (int)$k['slots']; $r++) if (!in_array($r, $decided, true)) $pool[] = $r;
+    if (!$pool) fail('NO_MEMBERS_LEFT');
+    $pick = $pool[random_int(0, count($pool) - 1)];
+    swap_slots((int)$k['id'], $round, $pick);
+    q('INSERT INTO payouts (kameti_id,round_no,member_id,amount,bid_amount,given,given_at,note) VALUES (?,?,?,?,?,?,?,?)', [$k['id'], $round, null, 0, 0, 0, null, 'draw']);
+    $names = array_column(all('SELECT m.name FROM kameti_slots s JOIN kameti_members m ON m.id = s.member_id WHERE s.kameti_id = ? AND s.slot_no = ?', [$k['id'], $round]), 'name');
+    json_out(['round' => $round, 'names' => $names]);
+
 // ================= PAYMENTS =================
 case 'payments/toggle':
     $u = require_user(['organizer', 'superadmin']);
@@ -356,25 +347,20 @@ case 'payments/toggle':
     $paid = (bool)in('paid', true);
     if (!one('SELECT id FROM kameti_members WHERE id = ? AND kameti_id = ?', [$mid, $k['id']])) fail('NOT_FOUND', 404);
     q('DELETE FROM payments WHERE kameti_id = ? AND member_id = ? AND round_no = ?', [$k['id'], $mid, $round]);
-    if ($paid) {
-        q('INSERT INTO payments (kameti_id,member_id,round_no,amount,paid_at,note) VALUES (?,?,?,?,?,?)',
-            [$k['id'], $mid, $round, (float)in('amount', $k['amount']), now(), clean_str(in('note'), 255)]);
-    }
+    if ($paid) q('INSERT INTO payments (kameti_id,member_id,round_no,amount,paid_at,note) VALUES (?,?,?,?,?,?)',
+        [$k['id'], $mid, $round, (float)in('amount', $k['amount']), now(), clean_str(in('note'), 255)]);
     json_out(['ok' => true]);
 
 case 'payments/round':
-    // Mark everyone paid (or unpaid) for one round.
     $u = require_user(['organizer', 'superadmin']);
     $k = kameti_for((int)in('kameti_id'), $u, true);
     $round = (int)in('round_no');
     $paid = (bool)in('paid', true);
-    $amounts = in('amounts', []);
+    $amounts = (array)in('amounts', []);
     q('DELETE FROM payments WHERE kameti_id = ? AND round_no = ?', [$k['id'], $round]);
-    if ($paid) {
-        foreach (all('SELECT id, share FROM kameti_members WHERE kameti_id = ?', [$k['id']]) as $m) {
-            $amt = isset($amounts[$m['id']]) ? (float)$amounts[$m['id']] : (float)$k['amount'] * (float)$m['share'];
-            q('INSERT INTO payments (kameti_id,member_id,round_no,amount,paid_at) VALUES (?,?,?,?,?)', [$k['id'], $m['id'], $round, $amt, now()]);
-        }
+    if ($paid) foreach ($amounts as $mid => $amt) {
+        if (one('SELECT id FROM kameti_members WHERE id = ? AND kameti_id = ?', [(int)$mid, $k['id']]))
+            q('INSERT INTO payments (kameti_id,member_id,round_no,amount,paid_at) VALUES (?,?,?,?,?)', [$k['id'], (int)$mid, $round, (float)$amt, now()]);
     }
     json_out(['ok' => true]);
 
@@ -383,18 +369,18 @@ case 'payouts/save':
     $u = require_user(['organizer', 'superadmin']);
     $k = kameti_for((int)in('kameti_id'), $u, true);
     $round = (int)in('round_no');
-    if ($round < 1) fail('MISSING_FIELDS');
-    $mid = in('member_id');
-    $mid = $mid === null || $mid === '' ? null : (int)$mid;
+    if ($round < 1 || $round > (int)$k['slots']) fail('MISSING_FIELDS');
+    // Boli / need based: bring the chosen number to this round.
+    $from = (int)in('swap_from', 0);
+    if ($from && $from !== $round) {
+        $locked = locked_rounds((int)$k['id']);
+        if (in_array($from, $locked, true) || in_array($round, $locked, true)) fail('LOCKED');
+        swap_slots((int)$k['id'], $round, $from);
+    }
     $given = in('given') ? 1 : 0;
     q('DELETE FROM payouts WHERE kameti_id = ? AND round_no = ?', [$k['id'], $round]);
     q('INSERT INTO payouts (kameti_id,round_no,member_id,amount,bid_amount,given,given_at,note) VALUES (?,?,?,?,?,?,?,?)',
-        [$k['id'], $round, $mid, (float)in('amount', 0), (float)in('bid_amount', 0), $given, $given ? now() : null, clean_str(in('note'), 255)]);
-    // For auction / need-based kametis the receiver is chosen per round: store it as their turn.
-    if ($mid && in_array($k['type'], ['boli', 'zaroorat'], true)) {
-        q('UPDATE kameti_members SET turn_no = NULL WHERE kameti_id = ? AND turn_no = ? AND id <> ?', [$k['id'], $round, $mid]);
-        q('UPDATE kameti_members SET turn_no = ? WHERE id = ? AND kameti_id = ?', [$round, $mid, $k['id']]);
-    }
+        [$k['id'], $round, null, (float)in('amount', 0), (float)in('bid_amount', 0), $given, $given ? now() : null, clean_str(in('note'), 255)]);
     $done = (int)one('SELECT COUNT(*) c FROM payouts WHERE kameti_id = ? AND given = 1', [$k['id']])['c'];
     if ($done >= (int)$k['slots']) q("UPDATE kametis SET status = 'completed' WHERE id = ?", [$k['id']]);
     elseif ($k['status'] === 'completed') q("UPDATE kametis SET status = 'active' WHERE id = ?", [$k['id']]);
@@ -403,9 +389,7 @@ case 'payouts/save':
 case 'payouts/delete':
     $u = require_user(['organizer', 'superadmin']);
     $k = kameti_for((int)in('kameti_id'), $u, true);
-    $round = (int)in('round_no');
-    q('DELETE FROM payouts WHERE kameti_id = ? AND round_no = ?', [$k['id'], $round]);
-    if (in_array($k['type'], ['boli', 'zaroorat'], true)) q('UPDATE kameti_members SET turn_no = NULL WHERE kameti_id = ? AND turn_no = ?', [$k['id'], $round]);
+    q('DELETE FROM payouts WHERE kameti_id = ? AND round_no = ?', [$k['id'], (int)in('round_no')]);
     if ($k['status'] === 'completed') q("UPDATE kametis SET status = 'active' WHERE id = ?", [$k['id']]);
     json_out(['ok' => true]);
 
@@ -413,11 +397,38 @@ default:
     fail('NOT_FOUND', 404);
 }
 
-function add_member(int $kid, string $name, ?string $phone, ?string $email, float $share, ?int $turn, int $pos): int {
+function add_member(int $kid, string $name, ?string $phone, ?string $email, int $pos): int {
     $userId = null;
     if ($email) { $x = one('SELECT id FROM users WHERE LOWER(email) = LOWER(?)', [$email]); $userId = $x['id'] ?? null; }
     if (!$userId && $phone) { $x = one('SELECT id FROM users WHERE phone = ?', [$phone]); $userId = $x['id'] ?? null; }
     q('INSERT INTO kameti_members (kameti_id,user_id,name,phone,email,share,turn_no,position,created_at) VALUES (?,?,?,?,?,?,?,?,?)',
-        [$kid, $userId, $name, $phone, $email, $share == 0.5 ? 0.5 : 1, $turn, $pos, now()]);
+        [$kid, $userId, $name, $phone, $email, 1, null, $pos, now()]);
     return (int)db()->lastInsertId();
+}
+
+function locked_rounds(int $kid): array {
+    return array_map('intval', array_column(all('SELECT round_no FROM payouts WHERE kameti_id = ? AND given = 1', [$kid]), 'round_no'));
+}
+
+function slot_groups(int $kid): array {
+    $g = [];
+    foreach (all('SELECT slot_no, member_id, portion FROM kameti_slots WHERE kameti_id = ? ORDER BY slot_no, id', [$kid]) as $r) $g[(int)$r['slot_no']][] = $r;
+    return $g;
+}
+
+function write_slots(int $kid, int $max, array $rows): void {
+    q('DELETE FROM kameti_slots WHERE kameti_id = ?', [$kid]);
+    foreach ($rows as $r) {
+        $slot = (int)$r['slot_no'];
+        $por = round((float)$r['portion'], 4);
+        if ($slot < 1 || $slot > $max || $por <= 0 || $por > 1) continue;
+        q('INSERT INTO kameti_slots (kameti_id, slot_no, member_id, portion) VALUES (?,?,?,?)', [$kid, $slot, (int)$r['member_id'], $por]);
+    }
+}
+
+function swap_slots(int $kid, int $a, int $b): void {
+    if ($a === $b) return;
+    q('UPDATE kameti_slots SET slot_no = -1 WHERE kameti_id = ? AND slot_no = ?', [$kid, $a]);
+    q('UPDATE kameti_slots SET slot_no = ? WHERE kameti_id = ? AND slot_no = ?', [$a, $kid, $b]);
+    q('UPDATE kameti_slots SET slot_no = ? WHERE kameti_id = ? AND slot_no = -1', [$b, $kid]);
 }
