@@ -4,6 +4,7 @@ import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { Crown, Briefcase, User, Mail, Lock, ArrowLeft } from 'lucide-react'
 import Logo, { LogoMark } from '../components/Logo'
 import LangSwitch from '../components/LangSwitch'
+import ThemeSwitch from '../components/ThemeSwitch'
 import { Button, cx } from '../components/ui'
 import { useAuth, homeFor } from '../lib/auth'
 import { useLang } from '../lib/i18n'
@@ -30,8 +31,8 @@ export function AuthLayout({ children }) {
       </div>
       <div className="flex flex-col px-5 py-6 sm:px-10">
         <div className="flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 text-sm font-bold text-ink/60 hover:text-ink"><ArrowLeft className="h-4 w-4 flip-rtl" /><span className="lg:hidden"><Logo size={28} /></span></Link>
-          <LangSwitch />
+          <Link to="/" className="flex items-center gap-2 text-sm font-bold text-fg/60 hover:text-fg"><ArrowLeft className="h-4 w-4 flip-rtl" /><span className="lg:hidden"><Logo size={28} /></span></Link>
+          <div className="flex items-center gap-2"><ThemeSwitch /><LangSwitch /></div>
         </div>
         <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center py-10">{children}</div>
       </div>
@@ -74,14 +75,14 @@ export default function Login() {
   return (
     <AuthLayout>
       <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">{t('welcomeBack')}</h1>
-      <p className="mt-2 text-ink/60">{t('loginSub')}</p>
+      <p className="mt-2 text-fg/60">{t('loginSub')}</p>
 
       {showDemo && <div className="mt-8">
-        <div className="mb-3 text-xs font-bold uppercase tracking-wider text-ink/50">{t('demoAccounts')}</div>
+        <div className="mb-3 text-xs font-bold uppercase tracking-wider text-fg/50">{t('demoAccounts')}</div>
         <div className="grid grid-cols-3 gap-2.5">
           {DEMO.map(([role, e, p, Icon, grad]) => (
             <button key={role} type="button" onClick={() => { setEmail(e); setPassword(p); setPicked(role); setError('') }}
-              className={cx('flex flex-col items-center gap-2 rounded-3xl border-2 bg-white p-3 transition active:scale-95', picked === role ? 'border-fuchsia-400 shadow-glow' : 'border-violet-100 hover:border-violet-200')}>
+              className={cx('flex flex-col items-center gap-2 rounded-3xl border-2 bg-surface p-3 transition active:scale-95', picked === role ? 'border-fuchsia-400 shadow-glow' : 'border-violet-100 hover:border-violet-200')}>
               <span className={cx('grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br text-white', grad)}><Icon className="h-6 w-6" /></span>
               <span className="text-xs font-bold sm:text-sm">{t(role)}</span>
             </button>
@@ -95,7 +96,7 @@ export default function Login() {
         {error && <div className="rounded-2xl bg-red-50 px-4 py-3 text-sm font-semibold text-red-600">{error}</div>}
         <Button type="submit" size="lg" loading={loading} className="w-full">{t('login')}</Button>
       </form>
-      <p className="mt-6 text-center text-sm text-ink/60">{t('noAccount')} <Link to="/register" className="font-bold text-fuchsia-600">{t('register')}</Link></p>
+      <p className="mt-6 text-center text-sm text-fg/60">{t('noAccount')} <Link to="/register" className="font-bold text-fuchsia-600">{t('register')}</Link></p>
     </AuthLayout>
   )
 }

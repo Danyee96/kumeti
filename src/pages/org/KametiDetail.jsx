@@ -56,7 +56,7 @@ export default function KametiDetail() {
 
   return (
     <div className="space-y-4">
-      <Link to={backTo} className="inline-flex items-center gap-2 text-sm font-bold text-ink/60 hover:text-ink"><ArrowLeft className="h-4 w-4 flip-rtl" />{t('back')}</Link>
+      <Link to={backTo} className="inline-flex items-center gap-2 text-sm font-bold text-fg/60 hover:text-fg"><ArrowLeft className="h-4 w-4 flip-rtl" />{t('back')}</Link>
 
       {isNew && (
         <div className="flex items-center gap-3 rounded-3xl bg-emerald-500 p-4 font-extrabold text-white animate-pop">
@@ -113,7 +113,7 @@ export default function KametiDetail() {
         <div className="grid grid-cols-3 gap-2 sm:flex">
           {tabs.map(([key, label, Icon]) => (
             <button key={key} onClick={() => setTab(key)}
-              className={cx('flex flex-col items-center justify-center gap-1 rounded-2xl px-2 py-2.5 text-xs font-bold transition sm:flex-row sm:gap-2 sm:px-4 sm:text-sm', tab === key ? 'bg-ink text-white shadow-soft' : key === 'share' ? 'bg-white text-fuchsia-600' : 'bg-white text-ink/60')}>
+              className={cx('flex flex-col items-center justify-center gap-1 rounded-2xl px-2 py-2.5 text-xs font-bold transition sm:flex-row sm:gap-2 sm:px-4 sm:text-sm', tab === key ? 'bg-ink text-white shadow-soft' : key === 'share' ? 'bg-surface text-fuchsia-600' : 'bg-surface text-fg/60')}>
               <Icon className="h-5 w-5" />{label}
             </button>
           ))}
@@ -208,7 +208,7 @@ function NumbersTab({ d, c, canEdit, run, me, everyRound }) {
           <Button size="lg" className="w-full text-lg" icon={Dices} loading={!!anim} onClick={async () => { const ok = await animate(() => run('slots/shuffle', {}, t('shuffleDone'))).catch(() => null); if (ok) boom() }}>{t('shuffleAll')}</Button>
         )
       )}
-      {canEdit && <p className="text-sm text-ink/60">{k.type === 'boli' ? t('slotsHintBoli') : k.type === 'zaroorat' ? t('slotsHintZaroorat') : t('slotsHint')}</p>}
+      {canEdit && <p className="text-sm text-fg/60">{k.type === 'boli' ? t('slotsHintBoli') : k.type === 'zaroorat' ? t('slotsHintZaroorat') : t('slotsHint')}</p>}
 
       <SlotEditor groups={groups} people={people} label={(r) => roundLabel(k, r, lang)} locked={c.isLocked} readOnly={!canEdit}
         onChange={setDraft} amountFor={c.payoutFor} highlight={me ? n(me.id) : null} mask={mask} />
@@ -234,7 +234,7 @@ function NumbersTab({ d, c, canEdit, run, me, everyRound }) {
           <div className="text-center">
             <div className="mx-auto grid h-20 w-20 place-items-center rounded-full bg-gradient-to-br from-amber-400 to-orange-500 text-white"><Trophy className="h-10 w-10" /></div>
             <div className="mt-4 text-3xl font-extrabold">{winner.names.join(' + ')}</div>
-            <div className="mt-1 text-ink/60">{t('number')} {winner.round} · {roundLabel(k, winner.round, lang)}</div>
+            <div className="mt-1 text-fg/60">{t('number')} {winner.round} · {roundLabel(k, winner.round, lang)}</div>
             <Button className="mt-6 w-full" size="lg" onClick={() => setWinner(null)}>{t('close')}</Button>
           </div>
         )}
@@ -272,12 +272,12 @@ function ShareTab({ d, c, canEdit, me }) {
         <div className="grid h-16 w-16 shrink-0 place-items-center rounded-3xl bg-baari text-white shadow-glow">{busy === 'chart' ? <Loader2 className="h-8 w-8 animate-spin" /> : <ImageIcon className="h-8 w-8" />}</div>
         <div className="min-w-0 flex-1">
           <div className="text-lg font-extrabold">{t('fullChart')}</div>
-          <div className="text-sm text-ink/60">{t('fullChartSub')}</div>
+          <div className="text-sm text-fg/60">{t('fullChartSub')}</div>
         </div>
         <Share2 className="h-6 w-6 shrink-0 text-fuchsia-500" />
       </button>
 
-      <div className="pt-2 text-sm font-bold uppercase tracking-wide text-ink/50">{t('memberCard')}</div>
+      <div className="pt-2 text-sm font-bold uppercase tracking-wide text-fg/50">{t('memberCard')}</div>
       {list.map((m) => {
         const nums = c.numbersOf(m.id)
         return (
@@ -339,7 +339,7 @@ function PaymentsTab({ d, c, canEdit, run }) {
         {Array.from({ length: c.slots }, (_, i) => i + 1).map((x) => {
           const full = c.roundPaidCount(x) === payers.length && payers.length > 0
           return (
-            <button key={x} onClick={() => setR(x)} className={cx('num flex h-14 min-w-[3.5rem] shrink-0 flex-col items-center justify-center rounded-2xl px-2 font-bold transition', x === r ? 'bg-ink text-white' : full ? 'bg-emerald-100 text-emerald-700' : x <= c.cur ? 'bg-white text-ink' : 'bg-white/60 text-ink/40')}>
+            <button key={x} onClick={() => setR(x)} className={cx('num flex h-14 min-w-[3.5rem] shrink-0 flex-col items-center justify-center rounded-2xl px-2 font-bold transition', x === r ? 'bg-ink text-white' : full ? 'bg-emerald-100 text-emerald-700' : x <= c.cur ? 'bg-surface text-fg' : 'bg-surface/60 text-fg/40')}>
               <span className="text-lg leading-none">{x}</span>
               {x === c.cur && <span className="mt-1 h-1.5 w-1.5 rounded-full bg-fuchsia-500" />}
             </button>
@@ -350,13 +350,13 @@ function PaymentsTab({ d, c, canEdit, run }) {
       <Card className="p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <div className="text-sm font-semibold text-ink/50">{t('round')} {r} · {roundLabel(k, r, lang)}</div>
-            <div className="num text-2xl font-bold">{money(c.roundCollected(r))} <span className="text-base text-ink/40">/ {money(expected)}</span></div>
+            <div className="text-sm font-semibold text-fg/50">{t('round')} {r} · {roundLabel(k, r, lang)}</div>
+            <div className="num text-2xl font-bold">{money(c.roundCollected(r))} <span className="text-base text-fg/40">/ {money(expected)}</span></div>
           </div>
           {canEdit && <Button variant={allPaid ? 'outline' : 'trust'} icon={allPaid ? X : Check} loading={busy === 'all'} onClick={markAll}>{allPaid ? t('unpaid') : t('markAllPaid')}</Button>}
         </div>
         <div className="mt-3"><Progress value={(paidCount / Math.max(1, payers.length)) * 100} tone="trust" /></div>
-        <div className="mt-1.5 text-sm font-semibold text-ink/50">{t('paidCount', { p: paidCount, t: payers.length })}</div>
+        <div className="mt-1.5 text-sm font-semibold text-fg/50">{t('paidCount', { p: paidCount, t: payers.length })}</div>
         {k.type === 'boli' && c.dividend(r) > 0 && <div className="mt-1 text-sm font-bold text-amber-600">{t('dividend')}: {money(c.dividend(r))}</div>}
       </Card>
 
@@ -368,7 +368,7 @@ function PaymentsTab({ d, c, canEdit, run }) {
               <Avatar name={m.name} id={m.id} />
               <div className="min-w-0 flex-1">
                 <div className="truncate text-lg font-extrabold">{m.name}</div>
-                <div className="num text-sm text-ink/50">{money(c.dueFor(m, r))} · {numbersLabel(c.shareOf(m.id))} {t('numbers')}</div>
+                <div className="num text-sm text-fg/50">{money(c.dueFor(m, r))} · {numbersLabel(c.shareOf(m.id))} {t('numbers')}</div>
               </div>
               {canEdit && !paid && m.phone && (
                 <a href={waLink(m.phone, t('reminderText', { name: m.name, title: k.title, r, amount: money(c.dueFor(m, r)) }))} target="_blank" rel="noreferrer"
@@ -394,7 +394,7 @@ function PaymentsTab({ d, c, canEdit, run }) {
             <tbody>
               {payers.map((m) => (
                 <tr key={m.id} className="border-t border-violet-50">
-                  <td className="sticky start-0 z-10 max-w-[130px] truncate bg-white px-4 py-2 font-bold">{m.name}</td>
+                  <td className="sticky start-0 z-10 max-w-[130px] truncate bg-surface px-4 py-2 font-bold">{m.name}</td>
                   {Array.from({ length: c.slots }, (_, i) => {
                     const p = c.isPaid(m.id, i + 1)
                     const late = !p && i + 1 <= c.cur
@@ -438,7 +438,7 @@ function PayoutsTab({ d, c, canEdit, run }) {
             <div className="flex items-center gap-3">
               <div className={cx('num grid h-12 w-12 shrink-0 place-items-center rounded-2xl text-lg font-bold', given ? 'bg-trust text-white' : r === c.cur ? 'bg-baari text-white' : 'bg-violet-100 text-violet-700')}>{r}</div>
               <div className="min-w-0 flex-1">
-                <div className="text-xs font-semibold text-ink/50">{roundLabel(k, r, lang)}</div>
+                <div className="text-xs font-semibold text-fg/50">{roundLabel(k, r, lang)}</div>
                 <div className="truncate font-extrabold">{holdersText(r)}</div>
                 {n(p?.bid_amount) > 0 && <div className="text-xs font-bold text-amber-600">{t('bidAmount')}: {money(p.bid_amount)}</div>}
                 {p?.note && p.note !== 'draw' && <div className="truncate text-xs font-bold text-pink-600">{p.note}</div>}
@@ -462,7 +462,7 @@ function PayoutsTab({ d, c, canEdit, run }) {
                 <div className="max-h-56 space-y-1.5 overflow-y-auto">
                   {options.map((r) => (
                     <button key={r} onClick={() => setEdit({ ...edit, swap_from: r })} className={cx('flex w-full items-center gap-3 rounded-2xl p-2.5 text-start', edit.swap_from === r ? 'bg-baari text-white' : 'bg-lilac')}>
-                      <span className={cx('num grid h-9 w-9 shrink-0 place-items-center rounded-xl font-bold', edit.swap_from === r ? 'bg-white/25' : 'bg-white')}>{r}</span>
+                      <span className={cx('num grid h-9 w-9 shrink-0 place-items-center rounded-xl font-bold', edit.swap_from === r ? 'bg-white/25' : 'bg-surface')}>{r}</span>
                       <span className="truncate font-bold">{holdersText(r)}</span>
                     </button>
                   ))}
@@ -547,7 +547,7 @@ function MembersTab({ d, c, canEdit, run, me }) {
             <Field label={t('name')}><Input className="h-14 text-lg font-bold" autoFocus value={edit.name} onChange={(e) => setEdit({ ...edit, name: e.target.value })} /></Field>
             <Field label={`${t('phone')} (${t('optional')})`}><Input dir="ltr" inputMode="tel" value={edit.phone} onChange={(e) => setEdit({ ...edit, phone: e.target.value })} /></Field>
             <Field label={`${t('email')} (${t('optional')})`}><Input dir="ltr" type="email" value={edit.email} onChange={(e) => setEdit({ ...edit, email: e.target.value })} /></Field>
-            {!edit.id && <p className="text-sm text-ink/60">{t('slotsHint')}</p>}
+            {!edit.id && <p className="text-sm text-fg/60">{t('slotsHint')}</p>}
             <Button size="lg" className="w-full" icon={Save} disabled={!edit.name.trim()} onClick={save}>{t('save')}</Button>
           </div>
         )}
@@ -600,15 +600,15 @@ function InfoTab({ d, c }) {
   return (
     <div className="grid gap-3 lg:grid-cols-2">
       <Card className="divide-y divide-violet-50 p-0">
-        {rows.map(([a, b]) => <div key={a} className="flex items-center justify-between gap-4 px-5 py-3.5"><span className="text-ink/60">{a}</span><span className="num text-end font-bold">{b}</span></div>)}
+        {rows.map(([a, b]) => <div key={a} className="flex items-center justify-between gap-4 px-5 py-3.5"><span className="text-fg/60">{a}</span><span className="num text-end font-bold">{b}</span></div>)}
       </Card>
       {(cfg.rules || k.notes) && (
         <Card className="h-fit p-5">
           <h3 className="mb-2 font-extrabold">{t('rulesNotes')}</h3>
-          <p className="whitespace-pre-wrap text-ink/70">{cfg.rules || k.notes}</p>
+          <p className="whitespace-pre-wrap text-fg/70">{cfg.rules || k.notes}</p>
         </Card>
       )}
-      <div className="text-xs text-ink/40">{fmtDate(k.created_at, lang)}</div>
+      <div className="text-xs text-fg/40">{fmtDate(k.created_at, lang)}</div>
     </div>
   )
 }

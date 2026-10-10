@@ -23,7 +23,7 @@ export default function OrgDashboard() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-2 text-sm font-semibold text-ink/50"><Sparkles className="h-4 w-4 text-amber-500" />{t('hello')}, <span className="text-ink">{user.name}</span></div>
+      <div className="flex items-center gap-2 text-sm font-semibold text-fg/50"><Sparkles className="h-4 w-4 text-amber-500" />{t('hello')}, <span className="text-fg">{user.name}</span></div>
 
       {/* The one big action */}
       <Link to="/org/new" className="group relative block overflow-hidden rounded-[2rem] bg-baari p-6 text-white shadow-glow transition active:scale-[.98] sm:p-8">

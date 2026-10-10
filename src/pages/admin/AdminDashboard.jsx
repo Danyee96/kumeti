@@ -68,7 +68,7 @@ export default function AdminDashboard() {
             {s.recent_users.map((u) => (
               <div key={u.id} className="flex items-center gap-3">
                 <Avatar name={u.name} id={u.id} size="sm" />
-                <div className="min-w-0 flex-1"><div className="truncate text-sm font-bold">{u.name}</div><div className="text-xs text-ink/50">{fmtDate(u.created_at, lang)}</div></div>
+                <div className="min-w-0 flex-1"><div className="truncate text-sm font-bold">{u.name}</div><div className="text-xs text-fg/50">{fmtDate(u.created_at, lang)}</div></div>
                 <Badge tone={u.role === 'superadmin' ? 'amber' : u.role === 'organizer' ? 'violet' : 'cyan'}>{t(u.role)}</Badge>
               </div>
             ))}

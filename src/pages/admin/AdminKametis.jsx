@@ -14,7 +14,7 @@ export default function AdminKametis() {
     <div>
       <PageHeader title={t('allKametis')} action={<Link to="/org/new"><Button icon={PlusCircle}>{t('newKameti')}</Button></Link>} />
       {!list ? <Spinner /> : list.length === 0 ? <Empty icon={Layers} title={t('emptyKametis')} /> : (
-        <KametiGrid list={list} extra={(k) => <div className="text-xs font-semibold text-ink/50">{t('organizedBy')}: {k.organizer_name}</div>} />
+        <KametiGrid list={list} extra={(k) => <div className="text-xs font-semibold text-fg/50">{t('organizedBy')}: {k.organizer_name}</div>} />
       )}
     </div>
   )

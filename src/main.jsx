@@ -5,11 +5,13 @@ import App from './App'
 import { LangProvider } from './lib/i18n'
 import { AuthProvider } from './lib/auth'
 import { ToastProvider } from './components/ui'
+import { ThemeProvider } from './lib/theme'
 import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <HashRouter>
+      <ThemeProvider>
       <LangProvider>
         <AuthProvider>
           <ToastProvider>
@@ -17,6 +19,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           </ToastProvider>
         </AuthProvider>
       </LangProvider>
+      </ThemeProvider>
     </HashRouter>
   </React.StrictMode>
 )

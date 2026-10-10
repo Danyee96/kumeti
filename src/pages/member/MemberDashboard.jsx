@@ -47,21 +47,21 @@ export default function MemberDashboard() {
                   <div className="p-4 text-center">
                     <Crown className="mx-auto h-6 w-6 text-amber-500" />
                     <div className="num mt-1 flex flex-wrap justify-center gap-1 text-2xl font-bold">{mine.length ? mine.map((x) => <span key={x.slot_no}>#{x.slot_no}{x.portion < 0.99 && <small className="text-sm">{frac(x.portion)}</small>}</span>) : '—'}</div>
-                    <div className="text-xs font-semibold text-ink/50">{t('yourTurn')}</div>
+                    <div className="text-xs font-semibold text-fg/50">{t('yourTurn')}</div>
                   </div>
                   <div className="p-4 text-center">
                     <Wallet className="mx-auto h-6 w-6 text-violet-500" />
                     <div className="num mt-1 text-lg font-bold">{money(n(k.amount) * share)}</div>
-                    <div className="text-xs font-semibold text-ink/50">{t('youPay')}</div>
+                    <div className="text-xs font-semibold text-fg/50">{t('youPay')}</div>
                   </div>
                   <div className={cx('p-4 text-center', paid ? 'bg-emerald-50' : 'bg-red-50')}>
                     <div className={cx('mx-auto grid h-9 w-9 place-items-center rounded-xl text-white', paid ? 'bg-emerald-500' : 'bg-red-500')}>{paid ? <Check className="h-6 w-6" /> : <X className="h-6 w-6" />}</div>
                     <div className="mt-1 text-xs font-bold">{paid ? t('paid') : t('payNow')}</div>
-                    <div className="num text-xs text-ink/50">{t('round')} {cur}</div>
+                    <div className="num text-xs text-fg/50">{t('round')} {cur}</div>
                   </div>
                 </div>
                 <div className="flex items-center justify-between border-t border-violet-50 px-5 py-3 text-sm">
-                  <span className="text-ink/60">{nextNum ? `#${nextNum.slot_no} · ${roundLabel(k, nextNum.slot_no, lang)}` : t('noTurn')}</span>
+                  <span className="text-fg/60">{nextNum ? `#${nextNum.slot_no} · ${roundLabel(k, nextNum.slot_no, lang)}` : t('noTurn')}</span>
                   <Badge tone="violet">{t('view')}<ChevronRight className="h-3 w-3 flip-rtl" /></Badge>
                 </div>
               </Link>

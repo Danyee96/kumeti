@@ -46,7 +46,7 @@ export default function SlotEditor({ groups, people, label, locked = () => false
               </div>
               <div className="min-w-0 flex-1 p-3">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="truncate text-sm font-bold text-ink/60">{label(g.slot_no)}</span>
+                  <span className="truncate text-sm font-bold text-fg/60">{label(g.slot_no)}</span>
                   {amountFor && <span className="num shrink-0 text-sm font-bold">{money(amountFor(g.slot_no))}</span>}
                 </div>
                 <div className="mt-1.5 flex flex-wrap gap-1.5">
@@ -88,7 +88,7 @@ export default function SlotEditor({ groups, people, label, locked = () => false
                 <div className="mt-2 grid grid-cols-6 gap-1.5">
                   {PORTIONS.map((p) => (
                     <button key={p} onClick={() => setSplit({ ...split, holders: split.holders.map((x, j) => (j === i ? { ...x, portion: p } : x)) })}
-                      className={cx('h-11 rounded-xl text-lg font-bold', Math.abs(n(h.portion) - p) < 0.01 ? 'bg-baari text-white' : 'bg-white text-ink/70')}>{frac(p)}</button>
+                      className={cx('h-11 rounded-xl text-lg font-bold', Math.abs(n(h.portion) - p) < 0.01 ? 'bg-baari text-white' : 'bg-surface text-fg/70')}>{frac(p)}</button>
                   ))}
                 </div>
               </div>

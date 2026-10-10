@@ -95,9 +95,9 @@ export default function KametiWizard() {
     <div ref={top} className="mx-auto max-w-2xl scroll-mt-24 pb-28 lg:pb-0">
       {/* progress */}
       <div className="mb-5">
-        <div className="mb-2 flex items-center justify-between text-sm font-bold text-ink/50">
+        <div className="mb-2 flex items-center justify-between text-sm font-bold text-fg/50">
           <span>{t('stepOf', { s: step + 1, t: steps.length })}</span>
-          {f.type && <span className="flex items-center gap-1.5 text-ink">{(() => { const I = TYPES[f.type].icon; return <I className="h-4 w-4 text-fuchsia-500" /> })()}{t(`type_${f.type}`)}</span>}
+          {f.type && <span className="flex items-center gap-1.5 text-fg">{(() => { const I = TYPES[f.type].icon; return <I className="h-4 w-4 text-fuchsia-500" /> })()}{t(`type_${f.type}`)}</span>}
         </div>
         <div className="flex gap-1.5">{steps.map((s, i) => <div key={s} className={cx('h-2 flex-1 rounded-full transition', i <= step ? 'bg-baari' : 'bg-violet-100')} />)}</div>
       </div>
@@ -109,7 +109,7 @@ export default function KametiWizard() {
       {key === 'numbers' && (
         <div>
           <h1 className="text-2xl font-extrabold sm:text-3xl">{t('slotsTitle')}</h1>
-          <p className="mb-4 mt-1 text-ink/60">{f.type === 'boli' ? t('slotsHintBoli') : f.type === 'zaroorat' ? t('slotsHintZaroorat') : t('slotsHint')}</p>
+          <p className="mb-4 mt-1 text-fg/60">{f.type === 'boli' ? t('slotsHintBoli') : f.type === 'zaroorat' ? t('slotsHintZaroorat') : t('slotsHint')}</p>
           {f.type === 'qurandazi' && (
             <Button size="lg" className="mb-4 w-full" icon={Dices} onClick={() => setGroups((g) => shuffleArr(g.map((x) => x.holders)).map((holders, i) => ({ slot_no: i + 1, holders })))}>{t('shuffleAll')}</Button>
           )}
@@ -120,7 +120,7 @@ export default function KametiWizard() {
 
       {/* action bar */}
       {key !== 'type' && (
-        <div className="fixed inset-x-3 bottom-[92px] z-30 flex gap-2 rounded-[1.6rem] bg-white/90 p-2 shadow-soft backdrop-blur-xl lg:static lg:mt-6 lg:bg-transparent lg:p-0 lg:shadow-none">
+        <div className="fixed inset-x-3 bottom-[92px] z-30 flex gap-2 rounded-[1.6rem] bg-surface/90 p-2 shadow-soft backdrop-blur-xl lg:static lg:mt-6 lg:bg-transparent lg:p-0 lg:shadow-none">
           <Button variant="outline" size="lg" onClick={() => go(step - 1)} className="!px-4"><ChevronLeft className="h-6 w-6 flip-rtl" /></Button>
           {step < steps.length - 1 ? (
             <Button size="lg" className="flex-1 text-lg" disabled={!canNext()} onClick={() => go(step + 1)}>{t('next')}<ChevronRight className="h-6 w-6 flip-rtl" /></Button>
@@ -131,7 +131,7 @@ export default function KametiWizard() {
       )}
 
       <Modal open={bulk !== null} onClose={() => setBulk(null)} title={t('pasteList')}>
-        <p className="mb-3 text-sm text-ink/60">{t('bulkHint')}</p>
+        <p className="mb-3 text-sm text-fg/60">{t('bulkHint')}</p>
         <Textarea rows={8} value={bulk || ''} onChange={(e) => setBulk(e.target.value)} placeholder={'Ayesha Khan, 03001234567\nUsman Ali\nFatima Noor'} />
         <Button className="mt-4 w-full" size="lg" icon={ListPlus} onClick={() => {
           const rows = String(bulk).split('\n').map((l) => l.trim()).filter(Boolean).map((l) => {
@@ -168,7 +168,7 @@ function TypeStep({ value, onPick }) {
               <div className="min-w-0 flex-1">
                 <div className="text-xl font-extrabold">{t(`type_${k}`)}</div>
                 <div className="text-sm font-bold text-fuchsia-600">{t(`type_${k}_ur`)}</div>
-                <p className="mt-0.5 text-sm text-ink/60">{t(`type_${k}_desc`)}</p>
+                <p className="mt-0.5 text-sm text-fg/60">{t(`type_${k}_desc`)}</p>
               </div>
               <ChevronRight className="h-6 w-6 shrink-0 text-violet-300 flip-rtl" />
             </button>
@@ -183,7 +183,7 @@ function BigStepper({ value, onChange, min = 1, max = 120, step = 1, display }) 
   return (
     <div className="flex items-center gap-2">
       <button type="button" onClick={() => onChange(Math.max(min, +(n(value) - step).toFixed(2)))} className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-violet-100 text-violet-700 active:scale-95"><Minus className="h-6 w-6" /></button>
-      <div className="num grid h-14 flex-1 place-items-center rounded-2xl border border-violet-200 bg-white text-2xl font-bold">{display ?? value}</div>
+      <div className="num grid h-14 flex-1 place-items-center rounded-2xl border border-violet-200 bg-surface text-2xl font-bold">{display ?? value}</div>
       <button type="button" onClick={() => onChange(Math.min(max, +(n(value) + step).toFixed(2)))} className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-baari text-white active:scale-95"><Plus className="h-6 w-6" /></button>
     </div>
   )
@@ -235,7 +235,7 @@ function AmountStep({ f, set, setCfg, editing }) {
       <h1 className="text-2xl font-extrabold sm:text-3xl">{t('perNumber', { f: per })}</h1>
       <Card className="p-4 sm:p-6">
         <div className="relative">
-          <span className="pointer-events-none absolute start-4 top-1/2 -translate-y-1/2 text-xl font-bold text-ink/40">Rs</span>
+          <span className="pointer-events-none absolute start-4 top-1/2 -translate-y-1/2 text-xl font-bold text-fg/40">Rs</span>
           <input className="input num h-20 ps-14 text-4xl font-bold" inputMode="numeric" dir="ltr" value={f.amount} onChange={(e) => set('amount', e.target.value.replace(/\D/g, ''))} />
         </div>
         <div className="mt-3 grid grid-cols-3 gap-2">
@@ -255,7 +255,7 @@ function AmountStep({ f, set, setCfg, editing }) {
         </div>
       </div>
 
-      <button onClick={() => setMore(!more)} className="flex w-full items-center justify-between rounded-2xl bg-white px-4 py-4 font-bold">
+      <button onClick={() => setMore(!more)} className="flex w-full items-center justify-between rounded-2xl bg-surface px-4 py-4 font-bold">
         <span className="flex items-center gap-2"><SlidersHorizontal className="h-5 w-5 text-fuchsia-500" />{t('moreSettings')}</span>
         <ChevronRight className={cx('h-5 w-5 transition', more ? 'rotate-90' : 'flip-rtl')} />
       </button>
@@ -294,7 +294,7 @@ function PeopleStep({ f, people, setPeople, total, ok, setSlots, openBulk }) {
   return (
     <div className="space-y-3">
       <h1 className="text-2xl font-extrabold sm:text-3xl">{t('whoIsIn')}</h1>
-      <p className="text-ink/60">{t('numbersHint')}</p>
+      <p className="text-fg/60">{t('numbersHint')}</p>
 
       <div className={cx('sticky top-[65px] z-20 rounded-3xl p-4 shadow-soft', ok ? 'bg-emerald-500 text-white' : 'bg-ink text-white')}>
         <div className="flex items-center justify-between gap-3 font-extrabold">
@@ -304,7 +304,7 @@ function PeopleStep({ f, people, setPeople, total, ok, setSlots, openBulk }) {
         {!ok && (
           <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-sm font-bold">
             <span className="text-white/80">{diff > 0 ? t('numbersLeft', { n: numbersLabel(diff) }) : t('numbersExtra', { n: numbersLabel(-diff) })}</span>
-            {Number.isInteger(total) && total >= 2 && <button onClick={() => setSlots(total)} className="rounded-xl bg-white px-3 py-1.5 text-ink">{t('setTurnsTo', { n: total })}</button>}
+            {Number.isInteger(total) && total >= 2 && <button onClick={() => setSlots(total)} className="rounded-xl bg-white px-3 py-1.5 text-[#0F0A1F]">{t('setTurnsTo', { n: total })}</button>}
           </div>
         )}
       </div>
@@ -319,7 +319,7 @@ function PeopleStep({ f, people, setPeople, total, ok, setSlots, openBulk }) {
           </div>
           {m.showPhone && <input className="input mt-2 h-12" dir="ltr" inputMode="tel" placeholder="03xx xxxxxxx" value={m.phone} onChange={(e) => upd(m.key, 'phone', e.target.value)} />}
           <div className="mt-2 flex items-center gap-2">
-            <span className="w-24 shrink-0 text-sm font-bold text-ink/60">{t('numbersShort')}</span>
+            <span className="w-24 shrink-0 text-sm font-bold text-fg/60">{t('numbersShort')}</span>
             <div className="flex-1"><BigStepper value={m.numbers} min={0.5} max={50} step={0.5} display={numbersLabel(n(m.numbers))} onChange={(v) => upd(m.key, 'numbers', v)} /></div>
           </div>
         </Card>
@@ -351,7 +351,7 @@ function ReviewStep({ f, people, groups, editing }) {
           [t('endMonth'), roundLabel(f, n(f.slots), lang)],
           [t('numbers'), f.slots],
           ...(!editing ? [[t('members'), people.length]] : []),
-        ].map(([a, b]) => <div key={a} className="flex items-center justify-between gap-3 px-5 py-4"><span className="text-ink/60">{a}</span><span className="num text-end font-extrabold">{b}</span></div>)}
+        ].map(([a, b]) => <div key={a} className="flex items-center justify-between gap-3 px-5 py-4"><span className="text-fg/60">{a}</span><span className="num text-end font-extrabold">{b}</span></div>)}
       </Card>
       {!editing && (
         <Card className="p-4">

@@ -138,7 +138,7 @@ export default function LandingEditor() {
 
       {preview && (
         <div className="fixed inset-0 z-[70] overflow-y-auto bg-ink">
-          <button onClick={() => setPreview(false)} className="fixed bottom-6 start-1/2 z-[80] flex -translate-x-1/2 items-center gap-2 rounded-2xl bg-white px-5 py-3 font-bold text-ink shadow-2xl"><X className="h-5 w-5" />{t('close')} {t('preview')}</button>
+          <button onClick={() => setPreview(false)} className="fixed bottom-6 start-1/2 z-[80] flex -translate-x-1/2 items-center gap-2 rounded-2xl bg-surface px-5 py-3 font-bold text-fg shadow-2xl"><X className="h-5 w-5" />{t('close')} {t('preview')}</button>
           <Landing previewData={data} />
         </div>
       )}

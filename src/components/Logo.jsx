@@ -14,7 +14,7 @@ export function LogoMark({ size = 36, spin = false, className = '' }) {
           <stop offset="0" stopColor="#7C3AED" /><stop offset=".55" stopColor="#EC4899" /><stop offset="1" stopColor="#F97316" />
         </linearGradient>
       </defs>
-      <rect width="64" height="64" rx="18" fill="#0F0A1F" />
+      <rect width="64" height="64" rx="18" fill="#0F0A1F" /><rect x=".75" y=".75" width="62.5" height="62.5" rx="17.25" fill="none" stroke="#fff" strokeOpacity=".14" strokeWidth="1.5" />
       <g className={spin ? 'origin-center animate-spin-slow' : ''} style={{ transformBox: 'view-box' }}>
         {dots.map(([x, y], i) => (
           <circle key={i} cx={x} cy={y} r={i === 5 ? 6.5 : 4.2} fill={i === 5 ? `url(#g${id})` : '#fff'} opacity={i === 5 ? 1 : 0.35} />
@@ -29,7 +29,7 @@ export default function Logo({ light = false, size = 36, spin = false }) {
   return (
     <span className="inline-flex items-center gap-2.5" dir="ltr">
       <LogoMark size={size} spin={spin} />
-      <span className={`font-sans text-2xl font-extrabold tracking-tight ${light ? 'text-white' : 'text-ink'}`} style={{ lineHeight: 1 }}>
+      <span className={`font-sans text-2xl font-extrabold tracking-tight ${light ? 'text-white' : 'text-fg'}`} style={{ lineHeight: 1 }}>
         kumeti<span className="text-gradient">.</span>
       </span>
     </span>

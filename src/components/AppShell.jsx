@@ -2,6 +2,7 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { LayoutDashboard, Users, Layers, Globe, Settings, UserCircle, LogOut, PlusCircle, Wallet } from 'lucide-react'
 import Logo from './Logo'
 import LangSwitch from './LangSwitch'
+import ThemeSwitch from './ThemeSwitch'
 import { Avatar, cx } from './ui'
 import { useAuth } from '../lib/auth'
 import { useLang } from '../lib/i18n'
@@ -56,12 +57,13 @@ export default function AppShell() {
 
       <div className="min-w-0 flex-1">
         {/* Top bar */}
-        <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-violet-100 bg-lilac/85 px-4 py-3 backdrop-blur-xl sm:px-8">
+        <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-line bg-lilac/85 px-4 py-3 backdrop-blur-xl sm:px-8">
           <div className="lg:hidden"><Logo size={32} /></div>
-          <div className="hidden text-sm font-semibold text-ink/50 lg:block">{t('hello')}, <span className="text-ink">{user.name.split(' ')[0]}</span></div>
+          <div className="hidden text-sm font-semibold text-fg/50 lg:block">{t('hello')}, <span className="text-fg">{user.name.split(' ')[0]}</span></div>
           <div className="flex items-center gap-2">
+            <ThemeSwitch />
             <LangSwitch />
-            <button onClick={doLogout} className="grid h-10 w-10 place-items-center rounded-xl border border-violet-100 bg-white lg:hidden" aria-label={t('logout')}>
+            <button onClick={doLogout} className="grid h-10 w-10 place-items-center rounded-xl border border-violet-100 bg-surface lg:hidden" aria-label={t('logout')}>
               <LogOut className="h-5 w-5 flip-rtl" />
             </button>
           </div>

@@ -27,8 +27,8 @@ export default function KametiCard({ k, extra }) {
       </div>
       <div className="space-y-3 p-5">
         <div className="flex items-center justify-between text-sm">
-          <span className="flex items-center gap-1.5 text-ink/60"><Users className="h-4 w-4" /><span className="num">{n(k.member_count)}</span> {t('members')}</span>
-          <span className="flex items-center gap-1.5 text-ink/60"><CalendarDays className="h-4 w-4" />{fmtDate(roundDate(k, n(k.slots)), lang, { month: 'short', year: 'numeric' })}</span>
+          <span className="flex items-center gap-1.5 text-fg/60"><Users className="h-4 w-4" /><span className="num">{n(k.member_count)}</span> {t('members')}</span>
+          <span className="flex items-center gap-1.5 text-fg/60"><CalendarDays className="h-4 w-4" />{fmtDate(roundDate(k, n(k.slots)), lang, { month: 'short', year: 'numeric' })}</span>
         </div>
         <Progress value={(done / n(k.slots)) * 100} />
         <div className="flex items-center justify-between text-sm font-bold">

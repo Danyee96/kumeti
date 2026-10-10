@@ -56,10 +56,10 @@ export default function AdminUsers() {
                     </div>
                   </div>
                 </div>
-                <div className="mt-3 space-y-0.5 text-sm text-ink/60" dir="ltr">
+                <div className="mt-3 space-y-0.5 text-sm text-fg/60" dir="ltr">
                   {u.email && <div className="truncate">{u.email}</div>}
                   {u.phone && <div>{u.phone}</div>}
-                  <div className="text-xs text-ink/40" dir="auto">{fmtDate(u.created_at, lang)}</div>
+                  <div className="text-xs text-fg/40" dir="auto">{fmtDate(u.created_at, lang)}</div>
                 </div>
                 <div className="mt-3 grid grid-cols-2 gap-2">
                   <Button size="sm" variant="soft" icon={Pencil} onClick={() => setEdit({ ...u, password: '' })}>{t('edit')}</Button>

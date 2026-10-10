@@ -24,7 +24,7 @@ export default function Register() {
   return (
     <AuthLayout>
       <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">{t('registerTitle')}</h1>
-      <p className="mt-2 text-ink/60">{t('registerSub')}</p>
+      <p className="mt-2 text-fg/60">{t('registerSub')}</p>
       <form onSubmit={submit} className="mt-8 space-y-4">
         <Field label={t('name')}><Input required value={f.name} onChange={set('name')} /></Field>
         <Field label={t('email')}><Input type="email" dir="ltr" value={f.email} onChange={set('email')} /></Field>
@@ -33,7 +33,7 @@ export default function Register() {
         {error && <div className="rounded-2xl bg-red-50 px-4 py-3 text-sm font-semibold text-red-600">{error}</div>}
         <Button type="submit" size="lg" loading={loading} className="w-full">{t('register')}</Button>
       </form>
-      <p className="mt-6 text-center text-sm text-ink/60">{t('haveAccount')} <Link to="/login" className="font-bold text-fuchsia-600">{t('login')}</Link></p>
+      <p className="mt-6 text-center text-sm text-fg/60">{t('haveAccount')} <Link to="/login" className="font-bold text-fuchsia-600">{t('login')}</Link></p>
     </AuthLayout>
   )
 }

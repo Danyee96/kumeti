@@ -10,11 +10,11 @@ const VARIANTS = {
   grad: 'bg-baari text-white shadow-glow hover:brightness-110',
   trust: 'bg-trust text-white shadow-[0_15px_40px_-15px_rgba(16,185,129,.7)] hover:brightness-110',
   dark: 'bg-ink text-white hover:bg-ink-3',
-  outline: 'border-2 border-violet-200 bg-white text-ink hover:border-fuchsia-300 hover:bg-violet-50',
-  ghost: 'text-ink/70 hover:bg-violet-100/70 hover:text-ink',
+  outline: 'border-2 border-violet-200 bg-surface text-fg hover:border-fuchsia-300 hover:bg-violet-50',
+  ghost: 'text-fg/70 hover:bg-violet-100/70 hover:text-fg',
   danger: 'bg-red-500 text-white hover:bg-red-600',
   soft: 'bg-violet-100 text-violet-700 hover:bg-violet-200',
-  white: 'bg-white text-ink hover:bg-lilac',
+  white: 'bg-surface text-fg hover:bg-lilac',
 }
 const SIZES = { sm: 'h-9 px-3 text-sm rounded-xl gap-1.5', md: 'h-11 px-5 text-[15px] rounded-2xl gap-2', lg: 'h-14 px-7 text-base rounded-2xl gap-2.5', icon: 'h-10 w-10 rounded-xl' }
 
@@ -40,7 +40,7 @@ export function Field({ label, hint, children, className }) {
     <label className={cx('block', className)}>
       {label && <span className="label">{label}</span>}
       {children}
-      {hint && <span className="mt-1 block text-xs text-ink/50">{hint}</span>}
+      {hint && <span className="mt-1 block text-xs text-fg/50">{hint}</span>}
     </label>
   )
 }
@@ -55,7 +55,7 @@ export const Select = ({ options, ...p }) => (
 
 export function Toggle({ checked, onChange, label }) {
   return (
-    <button type="button" onClick={() => onChange(!checked)} className="flex w-full items-center justify-between gap-3 rounded-2xl border border-violet-100 bg-white px-4 py-3 text-start">
+    <button type="button" onClick={() => onChange(!checked)} className="flex w-full items-center justify-between gap-3 rounded-2xl border border-violet-100 bg-surface px-4 py-3 text-start">
       <span className="text-sm font-semibold">{label}</span>
       <span className={cx('relative h-7 w-12 shrink-0 rounded-full transition', checked ? 'bg-baari' : 'bg-violet-200')}>
         <span className={cx('absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-all', checked ? 'start-6' : 'start-1')} />
@@ -72,7 +72,7 @@ export function Segmented({ value, onChange, options, className }) {
           type="button"
           key={o.value}
           onClick={() => onChange(o.value)}
-          className={cx('rounded-2xl border-2 px-3 py-2.5 text-sm font-bold transition', value === o.value ? 'border-transparent bg-baari text-white shadow-glow' : 'border-violet-100 bg-white text-ink/70 hover:border-violet-200')}
+          className={cx('rounded-2xl border-2 px-3 py-2.5 text-sm font-bold transition', value === o.value ? 'border-transparent bg-baari text-white shadow-glow' : 'border-violet-100 bg-surface text-fg/70 hover:border-violet-200')}
         >
           {o.icon && <o.icon className="mx-auto mb-1 h-5 w-5" />}
           {o.label}
@@ -104,7 +104,7 @@ export function Empty({ icon: Icon, title, sub, action }) {
     <div className="card flex flex-col items-center px-6 py-14 text-center">
       {Icon && <div className="mb-4 grid h-16 w-16 place-items-center rounded-3xl bg-baari text-white shadow-glow"><Icon className="h-8 w-8" /></div>}
       <h3 className="text-lg font-extrabold">{title}</h3>
-      {sub && <p className="mt-1 max-w-sm text-ink/60">{sub}</p>}
+      {sub && <p className="mt-1 max-w-sm text-fg/60">{sub}</p>}
       {action && <div className="mt-6">{action}</div>}
     </div>
   )
@@ -116,9 +116,9 @@ export function Stat({ icon: Icon, label, value, tone = 'baari', sub }) {
     <div className="card flex items-center gap-3 p-3.5 sm:gap-4 sm:p-5">
       {Icon && <div className={cx('grid h-10 w-10 shrink-0 sm:h-12 sm:w-12 place-items-center rounded-2xl text-white', bg)}><Icon className="h-6 w-6" /></div>}
       <div className="min-w-0">
-        <div className="truncate text-xs font-semibold uppercase tracking-wide text-ink/50">{label}</div>
+        <div className="truncate text-xs font-semibold uppercase tracking-wide text-fg/50">{label}</div>
         <div className="num break-words text-lg font-bold leading-tight sm:text-2xl" dir="auto">{value}</div>
-        {sub && <div className="truncate text-xs text-ink/50">{sub}</div>}
+        {sub && <div className="truncate text-xs text-fg/50">{sub}</div>}
       </div>
     </div>
   )
@@ -135,7 +135,7 @@ export function Modal({ open, onClose, title, children, wide }) {
   if (!open) return null
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/60 p-0 backdrop-blur-sm sm:items-center sm:p-4" onMouseDown={(e) => e.target === e.currentTarget && onClose?.()}>
-      <div className={cx('max-h-[92vh] w-full overflow-y-auto rounded-t-[2rem] bg-white p-5 shadow-2xl animate-pop sm:rounded-[2rem] sm:p-7', wide ? 'sm:max-w-2xl' : 'sm:max-w-md')}>
+      <div className={cx('max-h-[92vh] w-full overflow-y-auto rounded-t-[2rem] bg-surface p-5 shadow-2xl animate-pop sm:rounded-[2rem] sm:p-7', wide ? 'sm:max-w-2xl' : 'sm:max-w-md')}>
         <div className="mb-5 flex items-center justify-between gap-3">
           <h3 className="text-xl font-extrabold">{title}</h3>
           <button onClick={onClose} className="grid h-9 w-9 place-items-center rounded-xl bg-violet-50 hover:bg-violet-100" aria-label="Close"><X className="h-5 w-5" /></button>
@@ -150,7 +150,7 @@ export function Confirm({ open, onClose, onConfirm, title, text, loading }) {
   const { t } = useLang()
   return (
     <Modal open={open} onClose={onClose} title={title || t('areYouSure')}>
-      <p className="text-ink/70">{text || t('cannotUndo')}</p>
+      <p className="text-fg/70">{text || t('cannotUndo')}</p>
       <div className="mt-6 grid grid-cols-2 gap-3">
         <Button variant="outline" onClick={onClose}>{t('cancel')}</Button>
         <Button variant="danger" loading={loading} onClick={onConfirm}>{t('confirm')}</Button>
@@ -190,7 +190,7 @@ export function PageHeader({ title, sub, action, back }) {
       <div className="min-w-0">
         {back}
         <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">{title}</h1>
-        {sub && <p className="mt-1 text-ink/60">{sub}</p>}
+        {sub && <p className="mt-1 text-fg/60">{sub}</p>}
       </div>
       {action}
     </div>
