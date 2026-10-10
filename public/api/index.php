@@ -47,7 +47,7 @@ case 'auth/register':
     if ($email && one('SELECT id FROM users WHERE LOWER(email) = LOWER(?)', [$email])) fail('EMAIL_TAKEN');
     if ($phone && one('SELECT id FROM users WHERE phone = ?', [$phone])) fail('PHONE_TAKEN');
     q('INSERT INTO users (name,email,phone,password_hash,role,status,lang,created_at) VALUES (?,?,?,?,?,?,?,?)',
-        [$name, $email, $phone, password_hash($pw, PASSWORD_DEFAULT), 'organizer', 'active', in('lang') === 'ur' ? 'ur' : 'en', now()]);
+        [$name, $email, $phone, password_hash($pw, PASSWORD_DEFAULT), 'organizer', 'active', normalize_language(in('lang')), now()]);
     $uid = (int)db()->lastInsertId();
     json_out(['token' => make_session($uid), 'user' => public_user(one('SELECT * FROM users WHERE id = ?', [$uid]))]);
 
@@ -59,12 +59,19 @@ case 'auth/logout':
     if ($t) q('DELETE FROM sessions WHERE token = ?', [$t]);
     json_out(['ok' => true]);
 
+case 'auth/language':
+    $u = require_user();
+    if ($method !== 'POST') fail('METHOD_NOT_ALLOWED', 405);
+    $lang = normalize_language(in('lang'));
+    q('UPDATE users SET lang = ? WHERE id = ?', [$lang, $u['id']]);
+    json_out(['lang' => $lang]);
+
 case 'auth/profile':
     $u = require_user();
     $name = clean_str(in('name'), 120) ?? $u['name'];
     $phone = clean_str(in('phone'), 40);
     $email = clean_str(in('email'), 160);
-    $lang = in('lang') === 'ur' ? 'ur' : 'en';
+    $lang = normalize_language(in('lang', $u['lang']));
     if ($email && one('SELECT id FROM users WHERE LOWER(email) = LOWER(?) AND id <> ?', [$email, $u['id']])) fail('EMAIL_TAKEN');
     q('UPDATE users SET name = ?, phone = ?, email = ?, lang = ? WHERE id = ?', [$name, $phone, $email, $lang, $u['id']]);
     $newPw = (string)in('new_password', '');

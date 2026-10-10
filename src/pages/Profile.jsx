@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import LangSwitch from '../components/LangSwitch'
 import { UserCircle, KeyRound } from 'lucide-react'
 import { Button, Card, Field, Input, PageHeader, Segmented, Avatar, useToast } from '../components/ui'
 import { useAuth } from '../lib/auth'
@@ -14,6 +15,7 @@ export default function Profile() {
   const [f, setF] = useState({ name: user.name, email: user.email || '', phone: user.phone || '', lang: lang })
   const [pw, setPw] = useState({ current_password: '', new_password: '' })
   const [loading, setLoading] = useState('')
+  useEffect(() => { setF((current) => ({ ...current, lang })) }, [lang])
 
   const save = async (withPw) => {
     setLoading(withPw ? 'pw' : 'info')
@@ -37,7 +39,7 @@ export default function Profile() {
             <Field label={t('name')}><Input value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} /></Field>
             <Field label={t('email')}><Input dir="ltr" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} /></Field>
             <Field label={t('phone')}><Input dir="ltr" value={f.phone} onChange={(e) => setF({ ...f, phone: e.target.value })} /></Field>
-            <Field label={t('language')}><Segmented value={f.lang} onChange={(v) => setF({ ...f, lang: v })} options={[{ value: 'en', label: 'English' }, { value: 'ur', label: 'اردو' }]} /></Field>
+            <Field label={t('language')}><LangSwitch value={f.lang} onChange={(value) => setF({ ...f, lang: value })} className="w-full" /></Field>
             <Field label={t('theme')}><Segmented value={theme} onChange={setTheme} options={[{ value: 'light', label: t('lightMode'), icon: Sun }, { value: 'dark', label: t('darkMode'), icon: Moon }]} /></Field>
             <Button icon={UserCircle} loading={loading === 'info'} onClick={() => save(false)} className="w-full">{t('save')}</Button>
           </div>

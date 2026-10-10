@@ -17,33 +17,35 @@ function setAt(obj, path, value) {
 
 const SECTIONS = [
   ['hero', 'Hero', [['badge', 'L'], ['title', 'L'], ['highlight', 'L'], ['subtitle', 'LT'], ['ctaPrimary', 'L'], ['ctaSecondary', 'L']]],
-  ['stats', 'Stats', [], { list: 'items', fields: [['value', 'S'], ['label', 'L']], blank: { value: '', label: { en: '', ur: '' } } }],
+  ['stats', 'Stats', [], { list: 'items', fields: [['value', 'S'], ['label', 'L']], blank: { value: '', label: { en: '', ur: '', roman: '' } } }],
   ['trust', 'Cities ticker', [['title', 'L'], ['items', 'S']]],
-  ['features', 'Features', [['title', 'L'], ['subtitle', 'LT']], { list: 'items', fields: [['icon', 'ICON'], ['title', 'L'], ['desc', 'LT']], blank: { icon: 'Sparkles', title: { en: '', ur: '' }, desc: { en: '', ur: '' } } }],
+  ['features', 'Features', [['title', 'L'], ['subtitle', 'LT']], { list: 'items', fields: [['icon', 'ICON'], ['title', 'L'], ['desc', 'LT']], blank: { icon: 'Sparkles', title: { en: '', ur: '', roman: '' }, desc: { en: '', ur: '', roman: '' } } }],
   ['types', 'Kameti types', [['title', 'L'], ['subtitle', 'LT']]],
-  ['steps', 'How it works', [['title', 'L']], { list: 'items', fields: [['title', 'L'], ['desc', 'LT']], blank: { title: { en: '', ur: '' }, desc: { en: '', ur: '' } } }],
-  ['testimonials', 'Testimonials', [['title', 'L']], { list: 'items', fields: [['name', 'S'], ['city', 'S'], ['quote', 'LT']], blank: { name: '', city: '', quote: { en: '', ur: '' } } }],
-  ['faq', 'FAQ', [['title', 'L']], { list: 'items', fields: [['q', 'L'], ['a', 'LT']], blank: { q: { en: '', ur: '' }, a: { en: '', ur: '' } } }],
+  ['steps', 'How it works', [['title', 'L']], { list: 'items', fields: [['title', 'L'], ['desc', 'LT']], blank: { title: { en: '', ur: '', roman: '' }, desc: { en: '', ur: '', roman: '' } } }],
+  ['testimonials', 'Testimonials', [['title', 'L']], { list: 'items', fields: [['name', 'S'], ['city', 'S'], ['quote', 'LT']], blank: { name: '', city: '', quote: { en: '', ur: '', roman: '' } } }],
+  ['faq', 'FAQ', [['title', 'L']], { list: 'items', fields: [['q', 'L'], ['a', 'LT']], blank: { q: { en: '', ur: '', roman: '' }, a: { en: '', ur: '', roman: '' } } }],
   ['cta', 'Call to action', [['title', 'L'], ['subtitle', 'LT'], ['button', 'L']]],
   ['footer', 'Footer', [['about', 'L'], ['phone', 'S'], ['email', 'S'], ['address', 'L']], null, true],
 ]
 
-function Bi({ label, value, onChange, area }) {
+function LocalizedField({ label, value, onChange, area }) {
   const C = area ? Textarea : Input
   return (
     <div>
       <span className="label">{label}</span>
-      <div className="grid gap-2 sm:grid-cols-2">
-        <div className="relative"><span className="absolute end-3 top-2 text-[10px] font-bold text-violet-400">EN</span><C dir="ltr" value={value?.en || ''} onChange={(e) => onChange({ ...value, en: e.target.value })} /></div>
-        <div className="relative"><span className="absolute start-3 top-2 text-[10px] font-bold text-violet-400">UR</span><C dir="rtl" className="font-urdu" value={value?.ur || ''} onChange={(e) => onChange({ ...value, ur: e.target.value })} /></div>
+      <div className="grid gap-2 lg:grid-cols-3">
+        <div className="relative"><span className="absolute end-3 top-2 text-[10px] font-bold text-violet-400">EN</span><C dir="ltr" className="latin-input" aria-label={`${label} — English`} value={value?.en || ''} onChange={(e) => onChange({ ...value, en: e.target.value })} /></div>
+        <div className="relative"><span className="absolute start-3 top-2 text-[10px] font-bold text-violet-400">UR</span><C dir="rtl" className="font-urdu" aria-label={`${label} — Urdu`} value={value?.ur || ''} onChange={(e) => onChange({ ...value, ur: e.target.value })} /></div>
+        <div className="relative"><span className="absolute end-3 top-2 text-[10px] font-bold text-violet-400">Roman Urdu</span><C dir="ltr" className="latin-input" aria-label={`${label} — Roman Urdu`} value={value?.roman || ''} onChange={(e) => onChange({ ...value, roman: e.target.value })} /></div>
       </div>
     </div>
   )
 }
 
 function FieldFor({ name, kind, value, onChange }) {
-  const label = name.replace(/([A-Z])/g, ' $1').replace(/^./, (s) => s.toUpperCase())
-  if (kind === 'L' || kind === 'LT') return <Bi label={label} value={value} onChange={onChange} area={kind === 'LT'} />
+  const { t } = useLang()
+  const label = t(`editor_${name}`)
+  if (kind === 'L' || kind === 'LT') return <LocalizedField label={label} value={value} onChange={onChange} area={kind === 'LT'} />
   if (kind === 'ICON') {
     return (
       <div>
@@ -92,7 +94,7 @@ export default function LandingEditor() {
         } />
 
       <div className="space-y-3">
-        {SECTIONS.map(([key, title, fields, list, noToggle]) => {
+        {SECTIONS.map(([key, , fields, list, noToggle]) => {
           const sec = data[key]
           const isOpen = open === key
           return (
@@ -100,7 +102,7 @@ export default function LandingEditor() {
               <button onClick={() => setOpen(isOpen ? null : key)} className="flex w-full items-center justify-between gap-3 px-5 py-4 text-start">
                 <span className="flex items-center gap-3">
                   <span className={cx('h-3 w-3 rounded-full', noToggle || sec.show ? 'bg-emerald-500' : 'bg-gray-300')} />
-                  <span className="text-lg font-extrabold">{title}</span>
+                  <span className="text-lg font-extrabold">{t(`editor_section_${key}`)}</span>
                 </span>
                 <ChevronDown className={cx('h-5 w-5 transition', isOpen && 'rotate-180')} />
               </button>

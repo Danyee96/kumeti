@@ -2,6 +2,8 @@
 
 React (Vite + Tailwind) frontend + PHP API + MySQL. Runs on **any Hostinger web hosting plan** (Premium / Business / Cloud) — **no VPS, no Node server needed**. Node is only used on your computer / GitHub to build.
 
+Language dropdown: **English, Urdu, and Roman Urdu**. Urdu uses right-to-left layout; Roman Urdu uses Latin text and left-to-right layout. Selections are remembered locally and saved to signed-in accounts. The landing editor supports all three languages, and shared image cards use the selected language.
+
 ## Roles
 | Role | Login (demo) | Can do |
 |---|---|---|

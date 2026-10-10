@@ -1,5 +1,6 @@
 // Default landing page content. Super admin edits a copy of this in the Landing editor.
-const L = (en, ur) => ({ en, ur })
+import { ROMAN_LANDING } from './landingRoman'
+const L = (en, ur) => ({ en, ur, roman: ROMAN_LANDING[en] || en })
 
 export const LANDING_ICONS = ['Dices', 'ShieldCheck', 'BellRing', 'Languages', 'Smartphone', 'Wallet', 'Users', 'Gavel', 'Sparkles', 'BarChart3', 'Lock', 'HeartHandshake', 'Calculator', 'MessageCircle']
 
@@ -21,7 +22,7 @@ export const LANDING_DEFAULTS = {
     items: [
       { value: '4', label: L('Kameti types', 'کمیٹی کی اقسام') },
       { value: '1 tap', label: L('Qurandazi', 'قرعہ اندازی') },
-      { value: '2', label: L('Languages', 'زبانیں') },
+      { value: '3', label: L('Languages', 'زبانیں') },
       { value: '0', label: L('Registers needed', 'رجسٹر کی ضرورت') },
     ],
   },
@@ -38,7 +39,7 @@ export const LANDING_DEFAULTS = {
       { icon: 'Dices', title: L('Fair qurandazi', 'منصفانہ قرعہ اندازی'), desc: L('One tap shuffle gives every member a random turn. No doubts, no favourites.', 'ایک بٹن سے سب کو بے ترتیب باری۔ کوئی شک نہیں، کوئی پسند ناپسند نہیں۔') },
       { icon: 'Wallet', title: L('Every payment tracked', 'ہر قسط کا حساب'), desc: L('Tap a name to mark paid. See who paid and who is pending, round by round.', 'نام پر دبائیں اور ادا کریں۔ ہر راؤنڈ میں کس نے دیا، کس کا باقی۔') },
       { icon: 'BellRing', title: L('WhatsApp reminders', 'واٹس ایپ یاد دہانی'), desc: L('Send a polite reminder to late payers straight on WhatsApp.', 'دیر کرنے والوں کو واٹس ایپ پر شائستہ یاد دہانی۔') },
-      { icon: 'Languages', title: L('Urdu and English', 'اردو اور انگریزی'), desc: L('Switch language anytime. Big buttons, clear icons, easy for everyone.', 'جب چاہیں زبان بدلیں۔ بڑے بٹن، واضح نشان، سب کے لیے آسان۔') },
+      { icon: 'Languages', title: L('English, Urdu and Roman Urdu', 'انگریزی، اردو اور رومن اردو'), desc: L('Switch language anytime. Big buttons, clear icons, easy for everyone.', 'جب چاہیں زبان بدلیں۔ بڑے بٹن، واضح نشان، سب کے لیے آسان۔') },
       { icon: 'Calculator', title: L('Instant calculation', 'فوری حساب'), desc: L('Enter amount and duration — pot, end date and schedule appear instantly.', 'رقم اور مدت ڈالیں — کل رقم، آخری تاریخ اور شیڈول فوراً۔') },
       { icon: 'MessageCircle', title: L('Share on WhatsApp', 'واٹس ایپ پر شیئر'), desc: L('Every member gets a picture card with their numbers, months and amounts.', 'ہر ممبر کو اس کے نمبر، مہینے اور رقم والی تصویر۔') },
     ],
@@ -98,9 +99,19 @@ export function mergeLanding(saved) {
     if (a && typeof a === 'object') {
       const out = { ...a }
       if (b && typeof b === 'object') for (const k of Object.keys(b)) out[k] = k in a ? merge(a[k], b[k]) : b[k]
+      if ('en' in out && b && 'en' in b && b.en !== a.en && !b.roman) out.roman = ROMAN_LANDING[b.en] || b.en
       return out
     }
     return b === undefined || b === null ? a : b
   }
-  return merge(LANDING_DEFAULTS, saved || {})
+  const hydrate = (value) => {
+    if (Array.isArray(value)) return value.map(hydrate)
+    if (!value || typeof value !== 'object') return value
+    const out = Object.fromEntries(Object.entries(value).map(([key, child]) => [key, hydrate(child)]))
+    if (out.en === 'Urdu and English') return L('English, Urdu and Roman Urdu', 'انگریزی، اردو اور رومن اردو')
+    if (out.value === '2' && out.label?.en === 'Languages') out.value = '3'
+    if ('en' in out && !out.roman) out.roman = ROMAN_LANDING[out.en] || out.en
+    return out
+  }
+  return hydrate(merge(LANDING_DEFAULTS, saved || {}))
 }

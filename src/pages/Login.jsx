@@ -31,7 +31,7 @@ export function AuthLayout({ children }) {
       </div>
       <div className="flex flex-col px-5 py-6 sm:px-10">
         <div className="flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 text-sm font-bold text-fg/60 hover:text-fg"><ArrowLeft className="h-4 w-4 flip-rtl" /><span className="lg:hidden"><Logo size={28} /></span></Link>
+          <Link to="/" className="flex items-center gap-2 text-sm font-bold text-fg/60 hover:text-fg"><ArrowLeft className="h-4 w-4 flip-rtl" /><span className="sm:hidden"><LogoMark size={28} /></span><span className="hidden sm:inline-flex lg:hidden"><Logo size={28} /></span></Link>
           <div className="flex items-center gap-2"><ThemeSwitch /><LangSwitch /></div>
         </div>
         <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center py-10">{children}</div>

@@ -35,6 +35,9 @@ html.dark {
   body { @apply bg-lilac text-fg font-sans antialiased transition-colors duration-300; }
   html.urdu body, html.urdu input, html.urdu textarea, html.urdu select, html.urdu button { font-family: 'Noto Nastaliq Urdu', 'Plus Jakarta Sans', serif; line-height: 2.1; }
   html.urdu .font-num, html.urdu .num { font-family: 'Space Grotesk', 'Plus Jakarta Sans', sans-serif; line-height: 1.3; }
+  html .language-select { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; line-height: 1.5; }
+  html.urdu .latin-input { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; line-height: 1.5; }
+  html.urdu .language-select option[lang="ur"] { font-family: 'Noto Nastaliq Urdu', serif; }
   ::selection { background: #8576F2; color: #fff; }
   ::placeholder { color: rgb(var(--fg) / .35); }
 }
@@ -91,3 +94,22 @@ html.dark {
 .scrollbar-none::-webkit-scrollbar { display: none; }
 .scrollbar-none { scrollbar-width: none; }
 [dir='rtl'] .flip-rtl { transform: scaleX(-1); }
+
+/* Keep below-the-fold landing sections out of the initial layout/paint work. */
+.landing-deferred {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 700px;
+}
+.landing-glow {
+  background: radial-gradient(ellipse at center, rgba(108,92,231,.12), transparent 70%);
+}
+html.dark .landing-glow {
+  background: radial-gradient(ellipse at center, rgba(108,92,231,.22), transparent 70%);
+}
+@media (prefers-reduced-motion: reduce) {
+  .landing-page .animate-float,
+  .landing-page .animate-marquee,
+  .landing-page .animate-pop,
+  .landing-page .animate-shine,
+  .landing-page .animate-spin-slow { animation: none; }
+}

@@ -11,25 +11,27 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     if (!getToken()) { setReady(true); return }
-    api('auth/me').then((d) => setUser(d.user)).catch(() => setToken(null)).finally(() => setReady(true))
+    api('auth/me').then((d) => { setUser(d.user); setLang(d.user.lang, { persist: false }) }).catch(() => setToken(null)).finally(() => setReady(true))
     const onOut = () => setUser(null)
     window.addEventListener('kumeti:logout', onOut)
     return () => window.removeEventListener('kumeti:logout', onOut)
-  }, [])
+  }, [setLang])
 
   const login = useCallback(async (email, password) => {
     const d = await api('auth/login', { email, password })
     setToken(d.token)
     setUser(d.user)
+    setLang(d.user.lang, { persist: false })
     return d.user
-  }, [])
+  }, [setLang])
 
   const register = useCallback(async (payload) => {
     const d = await api('auth/register', payload)
     setToken(d.token)
     setUser(d.user)
+    setLang(d.user.lang, { persist: false })
     return d.user
-  }, [])
+  }, [setLang])
 
   const logout = useCallback(async () => {
     try { await api('auth/logout', {}) } catch { /* ignore */ }
@@ -40,7 +42,7 @@ export function AuthProvider({ children }) {
   const updateProfile = useCallback(async (payload) => {
     const d = await api('auth/profile', payload)
     setUser(d.user)
-    if (d.user.lang) setLang(d.user.lang)
+    if (d.user.lang) setLang(d.user.lang, { persist: false })
     return d.user
   }, [setLang])
 

@@ -32,7 +32,7 @@ export function lakh(v, lang = 'en') {
   const x = n(v)
   if (x >= 1e7) return `${+(x / 1e7).toFixed(2)} ${lang === 'ur' ? 'کروڑ' : 'crore'}`
   if (x >= 1e5) return `${+(x / 1e5).toFixed(2)} ${lang === 'ur' ? 'لاکھ' : 'lakh'}`
-  if (x >= 1e3) return `${+(x / 1e3).toFixed(1)} ${lang === 'ur' ? 'ہزار' : 'thousand'}`
+  if (x >= 1e3) return `${+(x / 1e3).toFixed(1)} ${lang === 'ur' ? 'ہزار' : lang === 'roman' ? 'hazaar' : 'thousand'}`
   return String(Math.round(x))
 }
 

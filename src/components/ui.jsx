@@ -125,6 +125,7 @@ export function Stat({ icon: Icon, label, value, tone = 'baari', sub }) {
 }
 
 export function Modal({ open, onClose, title, children, wide }) {
+  const { t } = useLang()
   useEffect(() => {
     if (!open) return
     const k = (e) => e.key === 'Escape' && onClose?.()
@@ -138,7 +139,7 @@ export function Modal({ open, onClose, title, children, wide }) {
       <div className={cx('max-h-[92vh] w-full overflow-y-auto rounded-t-[2rem] bg-surface p-5 shadow-2xl animate-pop sm:rounded-[2rem] sm:p-7', wide ? 'sm:max-w-2xl' : 'sm:max-w-md')}>
         <div className="mb-5 flex items-center justify-between gap-3">
           <h3 className="text-xl font-extrabold">{title}</h3>
-          <button onClick={onClose} className="grid h-9 w-9 place-items-center rounded-xl bg-violet-50 hover:bg-violet-100" aria-label="Close"><X className="h-5 w-5" /></button>
+          <button onClick={onClose} className="grid h-9 w-9 place-items-center rounded-xl bg-violet-50 hover:bg-violet-100" aria-label={t('close')}><X className="h-5 w-5" /></button>
         </div>
         {children}
       </div>

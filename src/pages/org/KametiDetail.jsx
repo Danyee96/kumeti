@@ -587,7 +587,7 @@ function MembersTab({ d, c, canEdit, run, me }) {
               {cred.password && <div className="mt-1 text-2xl font-bold">{t('tempPassword')}: {cred.password}</div>}
             </div>
             {cred.password && (
-              <Button variant="dark" className="w-full" icon={Copy} onClick={() => { navigator.clipboard?.writeText(`${siteInfo().url}\n${cred.login}\n${cred.password}`); toast(t('saved')) }}>Copy</Button>
+              <Button variant="dark" className="w-full" icon={Copy} onClick={() => { navigator.clipboard?.writeText(`${siteInfo().url}\n${cred.login}\n${cred.password}`); toast(t('saved')) }}>{t('copy')}</Button>
             )}
           </div>
         )}

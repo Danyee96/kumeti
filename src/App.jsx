@@ -1,22 +1,24 @@
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
-import { useEffect } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import { useAuth, homeFor } from './lib/auth'
 import { Spinner } from './components/ui'
-import AppShell from './components/AppShell'
 import Landing from './pages/Landing'
-import Login from './pages/Login'
-import Register from './pages/Register'
-import Profile from './pages/Profile'
-import AdminDashboard from './pages/admin/AdminDashboard'
-import AdminUsers from './pages/admin/AdminUsers'
-import AdminKametis from './pages/admin/AdminKametis'
-import LandingEditor from './pages/admin/LandingEditor'
-import AdminSettings from './pages/admin/AdminSettings'
-import OrgDashboard from './pages/org/OrgDashboard'
-import KametiList from './pages/org/KametiList'
-import KametiWizard from './pages/org/KametiWizard'
-import KametiDetail from './pages/org/KametiDetail'
-import MemberDashboard from './pages/member/MemberDashboard'
+
+// Dashboard and export code is downloaded only when its route is opened.
+const AppShell = lazy(() => import('./components/AppShell'))
+const Login = lazy(() => import('./pages/Login'))
+const Register = lazy(() => import('./pages/Register'))
+const Profile = lazy(() => import('./pages/Profile'))
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'))
+const AdminUsers = lazy(() => import('./pages/admin/AdminUsers'))
+const AdminKametis = lazy(() => import('./pages/admin/AdminKametis'))
+const LandingEditor = lazy(() => import('./pages/admin/LandingEditor'))
+const AdminSettings = lazy(() => import('./pages/admin/AdminSettings'))
+const OrgDashboard = lazy(() => import('./pages/org/OrgDashboard'))
+const KametiList = lazy(() => import('./pages/org/KametiList'))
+const KametiWizard = lazy(() => import('./pages/org/KametiWizard'))
+const KametiDetail = lazy(() => import('./pages/org/KametiDetail'))
+const MemberDashboard = lazy(() => import('./pages/member/MemberDashboard'))
 
 function Guard({ roles, children }) {
   const { user, ready } = useAuth()
@@ -36,6 +38,7 @@ export default function App() {
   return (
     <>
       <ScrollTop />
+      <Suspense fallback={<Spinner className="min-h-[50vh]" />}>
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
@@ -56,6 +59,7 @@ export default function App() {
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      </Suspense>
     </>
   )
 }

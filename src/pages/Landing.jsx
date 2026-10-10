@@ -10,7 +10,7 @@ import ThemeSwitch from '../components/ThemeSwitch'
 import { useTheme } from '../lib/theme'
 import { useLang } from '../lib/i18n'
 import { useAuth, homeFor } from '../lib/auth'
-import { api } from '../lib/api'
+import { fetchLanding, readLandingCache } from '../lib/landingCache'
 import { mergeLanding } from '../lib/landingDefaults'
 import { TYPES, TYPE_KEYS, money, lakh } from '../lib/kameti'
 import { cx } from '../components/ui'
@@ -21,20 +21,23 @@ export default function Landing({ previewData }) {
   const { t, pick, lang } = useLang()
   const { user } = useAuth()
   const { isDark } = useTheme()
-  const [data, setData] = useState(() => mergeLanding(previewData))
-  const [site, setSite] = useState({ name: 'Kumeti', whatsapp: '' })
+  const [cached] = useState(() => previewData ? null : readLandingCache())
+  const [data, setData] = useState(() => mergeLanding(previewData || cached?.landing))
+  const [site, setSite] = useState(() => cached?.site || { name: 'Kumeti', whatsapp: '' })
   const [menu, setMenu] = useState(false)
 
   useEffect(() => {
     if (previewData) { setData(mergeLanding(previewData)); return }
-    api('public/landing').then((d) => { setData(mergeLanding(d.landing)); if (d.site) setSite(d.site) }).catch(() => {})
+    let active = true
+    fetchLanding().then((d) => { if (active) { setData(mergeLanding(d.landing)); if (d.site) setSite(d.site) } }).catch(() => {})
+    return () => { active = false }
   }, [previewData])
 
   const ctaTo = user ? homeFor(user.role) : '/register'
   const links = [['features', data.features.title], ['types', data.types.title], ['how', data.steps.title], ['faq', data.faq.title]]
 
   return (
-    <div className="overflow-x-hidden bg-lilac text-fg">
+    <div className="landing-page overflow-x-hidden bg-lilac text-fg">
       {/* ================= NAV ================= */}
       <header className="fixed inset-x-0 top-0 z-50">
         <div className="mx-auto mt-3 flex max-w-7xl items-center justify-between rounded-[1.6rem] border border-line bg-surface/70 px-4 py-3 backdrop-blur-xl sm:mx-6 lg:mx-auto lg:px-6">
@@ -67,7 +70,7 @@ export default function Landing({ previewData }) {
               <button key={id} onClick={() => { setMenu(false); document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' }) }}
                 className="block w-full rounded-xl px-4 py-3 text-start font-semibold text-fg/80 hover:bg-fg/5">{pick(label)}</button>
             ))}
-            <div className="flex items-center justify-between gap-2 pt-3">
+            <div className="flex flex-wrap items-center justify-between gap-2 pt-3">
               <LangSwitch dark={isDark} />
               <div className="flex gap-2">
                 <Link to="/login" className="rounded-xl bg-fg/5 px-4 py-2.5 text-sm font-bold">{t('login')}</Link>
@@ -82,7 +85,7 @@ export default function Landing({ previewData }) {
       {data.hero.show && (
         <section className="mesh-flip relative min-h-screen pt-32 lg:pt-36">
           <div className="grid-flip pointer-events-none absolute inset-0 [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_75%)]" />
-          <div className="pointer-events-none absolute -top-40 start-1/2 h-[600px] w-[600px] -translate-x-1/2 rounded-full bg-violet-600/10 blur-[120px] dark:bg-violet-600/20" />
+          <div className="landing-glow pointer-events-none absolute -top-40 start-1/2 h-[600px] w-[600px] -translate-x-1/2" />
           <div className="relative mx-auto grid max-w-7xl items-center gap-14 px-5 pb-24 lg:grid-cols-[1.1fr_.9fr] lg:px-8">
             <div className="text-center lg:text-start">
               <span className="glass-flip inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-fg/90 animate-pop">
@@ -154,7 +157,7 @@ export default function Landing({ previewData }) {
 
       {/* ================= FEATURES ================= */}
       {data.features.show && (
-        <section id="features" className="px-5 py-20">
+        <section id="features" className="landing-deferred px-5 py-20">
           <div className="mx-auto max-w-7xl">
             <SectionHead title={pick(data.features.title)} sub={pick(data.features.subtitle)} />
             <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -176,7 +179,7 @@ export default function Landing({ previewData }) {
 
       {/* ================= TYPES ================= */}
       {data.types.show && (
-        <section id="types" className="relative px-5 py-20">
+        <section id="types" className="landing-deferred relative px-5 py-20">
           <div className="pointer-events-none absolute inset-x-0 top-1/2 h-96 -translate-y-1/2 bg-gradient-to-r from-violet-700/10 via-indigo-600/10 to-violet-500/10 blur-[100px] dark:from-violet-700/20 dark:via-indigo-600/20 dark:to-violet-500/20" />
           <div className="relative mx-auto max-w-7xl">
             <SectionHead title={pick(data.types.title)} sub={pick(data.types.subtitle)} />
@@ -202,7 +205,7 @@ export default function Landing({ previewData }) {
 
       {/* ================= STEPS ================= */}
       {data.steps.show && (
-        <section id="how" className="px-5 py-20">
+        <section id="how" className="landing-deferred px-5 py-20">
           <div className="mx-auto max-w-6xl">
             <SectionHead title={pick(data.steps.title)} />
             <div className="relative mt-14 grid gap-6 md:grid-cols-4">
@@ -223,7 +226,7 @@ export default function Landing({ previewData }) {
 
       {/* ================= TESTIMONIALS ================= */}
       {data.testimonials.show && (
-        <section className="px-5 py-20">
+        <section className="landing-deferred px-5 py-20">
           <div className="mx-auto max-w-7xl">
             <SectionHead title={pick(data.testimonials.title)} />
             <div className="mt-14 grid gap-5 md:grid-cols-3">
@@ -246,7 +249,7 @@ export default function Landing({ previewData }) {
 
       {/* ================= FAQ ================= */}
       {data.faq.show && (
-        <section id="faq" className="px-5 py-20">
+        <section id="faq" className="landing-deferred px-5 py-20">
           <div className="mx-auto max-w-3xl">
             <SectionHead title={pick(data.faq.title)} />
             <div className="mt-12 space-y-3">{data.faq.items.map((f, i) => <Faq key={i} q={pick(f.q)} a={pick(f.a)} open={i === 0} />)}</div>
@@ -256,7 +259,7 @@ export default function Landing({ previewData }) {
 
       {/* ================= CTA ================= */}
       {data.cta.show && (
-        <section className="px-5 py-16">
+        <section className="landing-deferred px-5 py-16">
           <div className="relative mx-auto max-w-6xl overflow-hidden rounded-[2.5rem] bg-baari px-6 py-16 text-center text-white sm:px-12">
             <div className="grid-bg pointer-events-none absolute inset-0 opacity-60" />
             <div className="pointer-events-none absolute -bottom-24 -end-24 opacity-30"><LogoMark size={320} spin /></div>
@@ -272,7 +275,7 @@ export default function Landing({ previewData }) {
       )}
 
       {/* ================= FOOTER ================= */}
-      <footer className="border-t border-line px-5 py-12">
+      <footer className="landing-deferred border-t border-line px-5 py-12">
         <div className="mx-auto flex max-w-7xl flex-col gap-8 md:flex-row md:items-start md:justify-between">
           <div className="max-w-sm">
             <Logo light={isDark} />
@@ -320,7 +323,7 @@ function Faq({ q, a, open: initial }) {
 
 // Floating phone mockup that shows the product.
 function HeroPhone() {
-  const { t } = useLang()
+  const { t, lang } = useLang()
   const people = [['Ayesha Khan', 1, true], ['Fatima Noor', 2, true], ['Bilal Ahmed', 3, false], ['Sana Iqbal', 4, false]]
   return (
     <div className="relative mx-auto w-full max-w-[360px] animate-float" dir="ltr">
@@ -329,13 +332,13 @@ function HeroPhone() {
         <div className="overflow-hidden rounded-[2.4rem] bg-lilac text-fg">
           <div className="flex items-center justify-between px-6 pb-2 pt-4 text-xs font-bold"><span>9:41</span><span className="h-5 w-20 rounded-full bg-ink" /><span>100%</span></div>
           <div className="px-5 pb-6">
-            <div className="flex items-center justify-between py-2"><Logo size={26} /><span className="chip bg-emerald-100 text-emerald-700">● Live</span></div>
+            <div className="flex items-center justify-between py-2"><Logo size={26} /><span className="chip bg-emerald-100 text-emerald-700">● {t('active')}</span></div>
             <div className="relative mt-2 overflow-hidden rounded-3xl bg-baari p-5 text-white shadow-glow">
-              <div className="text-xs font-semibold text-white/80">Mohalla Kameti</div>
+              <div className="text-xs font-semibold text-white/80">{lang === 'ur' ? 'محلہ کمیٹی' : 'Mohalla Kameti'}</div>
               <div className="num mt-1 text-3xl font-bold">{money(600000)}</div>
-              <div className="mt-1 text-xs text-white/80">Rs 50,000 × 12 · {lakh(600000)}</div>
+              <div className="mt-1 text-xs text-white/80">Rs 50,000 × 12 · {lakh(600000, lang)}</div>
               <div className="mt-4 h-2 rounded-full bg-white/25"><div className="h-full w-1/3 rounded-full bg-white" /></div>
-              <div className="mt-2 flex justify-between text-[11px] font-semibold text-white/85"><span>Round 4 of 12</span><span>33%</span></div>
+              <div className="mt-2 flex justify-between text-[11px] font-semibold text-white/85"><span>{t('roundOf', { r: 4, t: 12 })}</span><span>33%</span></div>
               <Crown className="absolute -end-3 -top-3 h-20 w-20 rotate-12 text-white/15" />
             </div>
             <div className="mt-4 space-y-2">
@@ -352,10 +355,10 @@ function HeroPhone() {
         </div>
       </div>
       <div className="glass-flip absolute -start-6 top-24 hidden items-center gap-2 rounded-2xl px-4 py-3 text-sm font-bold shadow-soft sm:flex animate-pop" style={{ animationDelay: '.6s' }}>
-        <span className="grid h-7 w-7 place-items-center rounded-full bg-emerald-500 text-white"><Check className="h-4 w-4" /></span>Ayesha paid Rs 50,000
+        <span className="grid h-7 w-7 place-items-center rounded-full bg-emerald-500 text-white"><Check className="h-4 w-4" /></span>{t('samplePaid')}
       </div>
       <div className="glass-flip absolute -end-8 bottom-28 hidden items-center gap-2 rounded-2xl px-4 py-3 text-sm font-bold shadow-soft sm:flex animate-pop" style={{ animationDelay: '.9s' }}>
-        <BellRing className="h-4 w-4 text-amber-500" />Reminder sent
+        <BellRing className="h-4 w-4 text-amber-500" />{t('sampleReminder')}
       </div>
     </div>
   )
@@ -371,7 +374,7 @@ function MiniCalculator() {
     return d.toLocaleDateString(lang === 'ur' ? 'ur-PK' : 'en-GB', { month: 'long', year: 'numeric' })
   }, [members, lang])
   return (
-    <section className="px-5 py-20">
+    <section className="landing-deferred px-5 py-20">
       <div className="mx-auto grid max-w-6xl items-center gap-8 overflow-hidden rounded-[2.5rem] border border-line bg-surface p-6 shadow-soft sm:p-10 lg:grid-cols-2">
         <div>
           <span className="chip bg-violet-100 text-violet-700"><Calculator className="h-3.5 w-3.5" />{t('calcTitle')}</span>

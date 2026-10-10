@@ -7,6 +7,7 @@ import { AuthProvider } from './lib/auth'
 import { ToastProvider } from './components/ui'
 import { ThemeProvider } from './lib/theme'
 import './index.css'
+import './fonts.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

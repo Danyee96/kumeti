@@ -1,6 +1,11 @@
 import { createContext, useContext, useEffect, useState, useCallback } from 'react'
+import { roman } from './romanUrdu'
+import { LANGUAGES, normalizeLanguage } from './languages'
+import { api, getToken } from './api'
+import { EDITOR_TRANSLATIONS } from './editorTranslations'
 
 const en = {
+  copy: 'Copy', samplePaid: 'Ayesha paid Rs 50,000', sampleReminder: 'Reminder sent',
   appTagline: 'Apni baari, apne waqt pe',
   login: 'Login', logout: 'Logout', register: 'Create account', getStarted: 'Get started',
   email: 'Email', emailOrPhone: 'Email or phone', password: 'Password', name: 'Name', phone: 'Phone',
@@ -111,6 +116,7 @@ const en = {
 }
 
 const ur = {
+  copy: 'کاپی کریں', samplePaid: 'عائشہ نے 50,000 روپے ادا کیے', sampleReminder: 'یاد دہانی بھیج دی',
   appTagline: 'اپنی باری، اپنے وقت پہ',
   login: 'لاگ اِن', logout: 'لاگ آؤٹ', register: 'اکاؤنٹ بنائیں', getStarted: 'شروع کریں',
   email: 'ای میل', emailOrPhone: 'ای میل یا فون', password: 'پاس ورڈ', name: 'نام', phone: 'فون',
@@ -216,24 +222,31 @@ const ur = {
   },
 }
 
-const DICT = { en, ur }
+export const DICT = {
+  en: { ...en, ...EDITOR_TRANSLATIONS.en },
+  ur: { ...ur, ...EDITOR_TRANSLATIONS.ur },
+  roman: { ...roman, ...EDITOR_TRANSLATIONS.roman },
+}
 const LangCtx = createContext(null)
 
 export function LangProvider({ children }) {
   const [lang, setLangState] = useState(() => {
-    try { return localStorage.getItem('kumeti_lang') || 'en' } catch { return 'en' }
+    try { return normalizeLanguage(localStorage.getItem('kumeti_lang')) } catch { return 'en' }
   })
   useEffect(() => {
-    document.documentElement.lang = lang
-    document.documentElement.dir = lang === 'ur' ? 'rtl' : 'ltr'
+    const language = LANGUAGES.find((item) => item.value === lang)
+    document.documentElement.lang = language.htmlLang
+    document.documentElement.dir = language.dir
     document.documentElement.classList.toggle('urdu', lang === 'ur')
   }, [lang])
-  const setLang = useCallback((l) => {
+  const setLang = useCallback((l, { persist = true } = {}) => {
+    l = normalizeLanguage(l)
     setLangState(l)
     try { localStorage.setItem('kumeti_lang', l) } catch { /* storage unavailable */ }
+    if (persist && getToken()) api('auth/language', { lang: l }).catch(() => { /* Local choice remains available offline. */ })
   }, [])
   const t = useCallback((key, vars) => {
-    let s = DICT[lang][key] ?? en[key] ?? key
+    let s = DICT[lang][key] ?? DICT.en[key] ?? key
     if (vars && typeof s === 'string') for (const [k, v] of Object.entries(vars)) s = s.replaceAll(`{${k}}`, v)
     return s
   }, [lang])

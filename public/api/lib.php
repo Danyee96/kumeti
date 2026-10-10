@@ -146,6 +146,10 @@ function migrate(PDO $pdo, string $driver): void {
 
 function now(): string { return gmdate('Y-m-d H:i:s'); }
 
+function normalize_language($language): string {
+    return in_array($language, ['en', 'ur', 'roman'], true) ? $language : 'en';
+}
+
 function install_database(array $cfg, bool $seed = true): void {
     $pdo = connect($cfg);
     foreach (schema($cfg['driver']) as $sql) $pdo->exec($sql);

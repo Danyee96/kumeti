@@ -14,7 +14,7 @@ const person = (name = '', numbers = 1, phone = '') => ({ key: KEY++, name, numb
 export default function KametiWizard() {
   const { id } = useParams()
   const editing = Boolean(id)
-  const { t, err } = useLang()
+  const { t, err, lang } = useLang()
   const nav = useNavigate()
   const toast = useToast()
   const [step, setStep] = useState(0)
@@ -62,7 +62,7 @@ export default function KametiWizard() {
   }, [key]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const kLike = { ...f, start_date: f.frequency === 'monthly' ? `${f.startMonth}-01` : f.start_date }
-  const label = (r) => roundLabel(kLike, r)
+  const label = (r) => roundLabel(kLike, r, lang)
   const slotsOk = groups.every((g) => Math.abs(g.holders.reduce((a, h) => a + n(h.portion), 0) - 1) < 0.01)
 
   const canNext = () => {

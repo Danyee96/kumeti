@@ -1,6 +1,6 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { LayoutDashboard, Users, Layers, Globe, Settings, UserCircle, LogOut, PlusCircle, Wallet } from 'lucide-react'
-import Logo from './Logo'
+import Logo, { LogoMark } from './Logo'
 import LangSwitch from './LangSwitch'
 import ThemeSwitch from './ThemeSwitch'
 import { Avatar, cx } from './ui'
@@ -58,7 +58,7 @@ export default function AppShell() {
       <div className="min-w-0 flex-1">
         {/* Top bar */}
         <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-line bg-lilac/85 px-4 py-3 backdrop-blur-xl sm:px-8">
-          <div className="lg:hidden"><Logo size={32} /></div>
+          <div className="lg:hidden"><span className="sm:hidden"><LogoMark size={32} /></span><span className="hidden sm:inline-flex"><Logo size={32} /></span></div>
           <div className="hidden text-sm font-semibold text-fg/50 lg:block">{t('hello')}, <span className="text-fg">{user.name.split(' ')[0]}</span></div>
           <div className="flex items-center gap-2">
             <ThemeSwitch />
