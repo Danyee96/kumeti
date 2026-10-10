@@ -48,6 +48,7 @@ export default function KametiWizard() {
   const filled = people.filter((p) => p.name.trim())
   const totalNumbers = filled.reduce((a, p) => a + n(p.numbers), 0)
   const numbersOk = Math.abs(totalNumbers - n(f.slots)) < 0.01
+  const reservedNumbers = people.reduce((a, p) => a + n(p.numbers), 0)
   const sig = JSON.stringify(filled.map((p) => [p.key, p.numbers])) + f.slots
 
   // (Re)build numbers whenever the people/number counts change.
@@ -68,12 +69,16 @@ export default function KametiWizard() {
     if (key === 'type') return !!f.type
     if (key === 'when') return f.title.trim() && n(f.slots) >= 2
     if (key === 'amount') return n(f.amount) > 0
-    if (key === 'people') return filled.length >= 1 && numbersOk
+    if (key === 'people') return filled.length >= 1 && people.length <= n(f.slots) && numbersOk && reservedNumbers <= n(f.slots)
     if (key === 'numbers') return slotsOk
     return true
   }
 
   const submit = async () => {
+    if (!editing && (filled.length > n(f.slots) || !numbersOk || !slotsOk)) {
+      toast(err('KAMETI_CAPACITY'), 'err')
+      return
+    }
     setSaving(true)
     try {
       const payload = { ...f, start_date: kLike.start_date, amount: n(f.amount), slots: n(f.slots) }
@@ -138,7 +143,12 @@ export default function KametiWizard() {
             const [name, phone = ''] = l.split(',').map((x) => x.trim())
             return person(name, 1, phone)
           })
-          setPeople((m) => [...m.filter((x) => x.name.trim()), ...rows])
+          const existing = people.filter((x) => x.name.trim())
+          if (existing.length + rows.length > n(f.slots) || totalNumbers + rows.length > n(f.slots)) {
+            toast(err('KAMETI_CAPACITY'), 'err')
+            return
+          }
+          setPeople([...existing, ...rows])
           setBulk(null)
         }}>{t('add')}</Button>
       </Modal>
@@ -182,9 +192,9 @@ function TypeStep({ value, onPick }) {
 function BigStepper({ value, onChange, min = 1, max = 120, step = 1, display }) {
   return (
     <div className="flex items-center gap-2">
-      <button type="button" onClick={() => onChange(Math.max(min, +(n(value) - step).toFixed(2)))} className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-violet-100 text-violet-700 active:scale-95"><Minus className="h-6 w-6" /></button>
+      <button type="button" disabled={n(value) <= min} onClick={() => onChange(Math.max(min, +(n(value) - step).toFixed(2)))} className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-violet-100 text-violet-700 active:scale-95 disabled:opacity-40"><Minus className="h-6 w-6" /></button>
       <div className="num grid h-14 flex-1 place-items-center rounded-2xl border border-violet-200 bg-surface text-2xl font-bold">{display ?? value}</div>
-      <button type="button" onClick={() => onChange(Math.min(max, +(n(value) + step).toFixed(2)))} className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-baari text-white active:scale-95"><Plus className="h-6 w-6" /></button>
+      <button type="button" disabled={n(value) + step > max} onClick={() => onChange(Math.min(max, +(n(value) + step).toFixed(2)))} className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-baari text-white active:scale-95 disabled:opacity-40"><Plus className="h-6 w-6" /></button>
     </div>
   )
 }
@@ -288,8 +298,24 @@ function AmountStep({ f, set, setCfg, editing }) {
 
 function PeopleStep({ f, people, setPeople, total, ok, setSlots, openBulk }) {
   const { t } = useLang()
-  const upd = (key, k, v) => setPeople((list) => list.map((m) => (m.key === key ? { ...m, [k]: v } : m)))
   const need = n(f.slots)
+  const reserved = people.reduce((sum, m) => sum + n(m.numbers), 0)
+  const canAdd = people.length < need && reserved + 0.5 <= need
+  const upd = (key, k, v) => setPeople((list) => {
+    if (k === 'numbers' && n(v) > n(list.find((m) => m.key === key)?.numbers) && list.reduce((sum, m) => sum + n(m.key === key ? v : m.numbers), 0) > need) return list
+    return list.map((m) => (m.key === key ? { ...m, [k]: v } : m))
+  })
+  // Remove excess empty placeholders when a smaller kameti is selected.
+  useEffect(() => {
+    setPeople((list) => {
+      let excess = list.length - need
+      if (excess <= 0) return list
+      return list.filter((m) => {
+        if (excess > 0 && !m.name.trim() && !m.phone.trim()) { excess--; return false }
+        return true
+      })
+    })
+  }, [need, setPeople])
   const diff = +(need - total).toFixed(2)
   return (
     <div className="space-y-3">
@@ -320,13 +346,16 @@ function PeopleStep({ f, people, setPeople, total, ok, setSlots, openBulk }) {
           {m.showPhone && <input className="input mt-2 h-12" dir="ltr" inputMode="tel" placeholder="03xx xxxxxxx" value={m.phone} onChange={(e) => upd(m.key, 'phone', e.target.value)} />}
           <div className="mt-2 flex items-center gap-2">
             <span className="w-24 shrink-0 text-sm font-bold text-fg/60">{t('numbersShort')}</span>
-            <div className="flex-1"><BigStepper value={m.numbers} min={0.5} max={50} step={0.5} display={numbersLabel(n(m.numbers))} onChange={(v) => upd(m.key, 'numbers', v)} /></div>
+            <div className="flex-1"><BigStepper value={m.numbers} min={0.5} max={Math.min(50, need - reserved + n(m.numbers))} step={0.5} display={numbersLabel(n(m.numbers))} onChange={(v) => upd(m.key, 'numbers', v)} /></div>
           </div>
         </Card>
       ))}
       <div className="grid grid-cols-2 gap-2">
-        <Button variant="soft" size="lg" className="whitespace-nowrap !px-3" icon={UserPlus} onClick={() => setPeople((l) => [...l, person()])}>{t('addPerson')}</Button>
-        <Button variant="outline" size="lg" className="whitespace-nowrap !px-3" icon={ListPlus} onClick={openBulk}>{t('pasteList')}</Button>
+        <Button variant="soft" size="lg" className="whitespace-nowrap !px-3" icon={UserPlus} disabled={!canAdd} onClick={() => setPeople((list) => {
+          const remaining = need - list.reduce((sum, m) => sum + n(m.numbers), 0)
+          return list.length < need && remaining >= 0.5 ? [...list, person('', Math.min(1, remaining))] : list
+        })}>{t('addPerson')}</Button>
+        <Button variant="outline" size="lg" className="whitespace-nowrap !px-3" icon={ListPlus} disabled={people.filter((m) => m.name.trim()).length >= need || total >= need} onClick={openBulk}>{t('pasteList')}</Button>
       </div>
     </div>
   )

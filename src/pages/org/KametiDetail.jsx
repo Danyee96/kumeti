@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import confetti from 'canvas-confetti'
 import {
@@ -8,6 +8,8 @@ import {
 import { api } from '../../lib/api'
 import { useAuth } from '../../lib/auth'
 import { useLang } from '../../lib/i18n'
+import { useTheme } from '../../lib/theme'
+import { groupShareMembers } from '../../lib/share'
 import { TYPES, calc, money, n, fmtDate, waLink, lakh, roundLabel, frac, numbersLabel } from '../../lib/kameti'
 import { memberCardImage, chartImage, shareOrDownload, safeName, siteInfo } from '../../lib/exportImage'
 import { Avatar, Badge, Button, Card, Confirm, Field, Input, Modal, Progress, Spinner, Stat, Toggle, useToast, cx } from '../../components/ui'
@@ -244,21 +246,33 @@ function NumbersTab({ d, c, canEdit, run, me, everyRound }) {
 }
 
 function ShareTab({ d, c, canEdit, me }) {
-  const { t, lang } = useLang()
+  const { t, err, lang } = useLang()
+  const { theme } = useTheme()
+  const toast = useToast()
   const k = d.kameti
   const [busy, setBusy] = useState(null)
   const [preview, setPreview] = useState(null)
-  const list = canEdit ? c.payers : me ? [me] : []
+  const [mode, setMode] = useState('member')
+  const list = canEdit ? c.payers : me ? c.payers.filter((member) => n(member.id) === n(me.id) || (me.user_id && n(member.user_id) === n(me.user_id)) || (me.email && member.email && me.email.toLowerCase() === member.email.toLowerCase())) : []
+  const grouped = groupShareMembers(list, c)
+  const cards = mode === 'member' ? grouped : grouped.flatMap((group) => group.numbers.map((number) => ({ ...group, key: `${group.key}:${number.slot_no}`, numbers: [number] }))).sort((a, b) => a.numbers[0].slot_no - b.numbers[0].slot_no)
   const shareText = t('shareText', { title: k.title, url: siteInfo().url })
+  const exportSettings = useRef({ theme, lang })
+  exportSettings.current = { theme, lang }
+
+  useEffect(() => () => { if (preview) URL.revokeObjectURL(preview.url) }, [preview])
+  // A preview belongs to the theme/language in which it was generated.
+  useEffect(() => { setPreview(null) }, [theme, lang])
 
   const make = async (key, fn, filename) => {
     setBusy(key)
     try {
       const blob = await fn()
-      setPreview({ url: URL.createObjectURL(blob), blob, filename })
-    } finally { setBusy(null) }
+      if (exportSettings.current.theme !== theme || exportSettings.current.lang !== lang) return
+      setPreview({ url: URL.createObjectURL(blob), blob, filename, theme })
+    } catch { toast(err('IMAGE_EXPORT_FAILED'), 'err') } finally { setBusy(null) }
   }
-  const close = () => { if (preview) URL.revokeObjectURL(preview.url); setPreview(null) }
+  const close = () => setPreview(null)
 
   return (
     <div className="space-y-3">
@@ -267,7 +281,7 @@ function ShareTab({ d, c, canEdit, me }) {
         <p className="mt-1 text-white/70">{t('exportSub')}</p>
       </div>
 
-      <button disabled={!!busy} onClick={() => make('chart', () => chartImage({ k, c, t, lang }), `${safeName(k.title)}-chart.png`)}
+      <button disabled={!!busy} onClick={() => make('chart', () => chartImage({ k, c, t, lang, theme }), `${safeName(k.title)}-chart.png`)}
         className="card flex w-full items-center gap-4 p-4 text-start transition active:scale-[.98]">
         <div className="grid h-16 w-16 shrink-0 place-items-center rounded-3xl bg-baari text-white shadow-glow">{busy === 'chart' ? <Loader2 className="h-8 w-8 animate-spin" /> : <ImageIcon className="h-8 w-8" />}</div>
         <div className="min-w-0 flex-1">
@@ -277,30 +291,41 @@ function ShareTab({ d, c, canEdit, me }) {
         <Share2 className="h-6 w-6 shrink-0 text-violet-500" />
       </button>
 
-      <div className="pt-2 text-sm font-bold uppercase tracking-wide text-fg/50">{t('memberCard')}</div>
-      {list.map((m) => {
-        const nums = c.numbersOf(m.id)
+      <div role="tablist" aria-label={t('exportTab')} className="grid grid-cols-2 gap-2 rounded-2xl bg-violet-100 p-1.5">
+        {[['member', 'shareByMember', Users], ['number', 'shareByNumber', Hash]].map(([value, label, Icon]) => (
+          <button key={value} role="tab" id={`share-tab-${value}`} aria-selected={mode === value} aria-controls="share-cards" onClick={() => setMode(value)}
+            className={cx('flex items-center justify-center gap-2 rounded-xl px-3 py-3 text-sm font-bold transition', mode === value ? 'bg-surface text-fg shadow-soft' : 'text-fg/60')}>
+            <Icon className="h-5 w-5" />{t(label)}
+          </button>
+        ))}
+      </div>
+      <p className="text-sm text-fg/60">{t(mode === 'member' ? 'shareByMemberHint' : 'shareByNumberHint')}</p>
+      <div id="share-cards" role="tabpanel" aria-labelledby={`share-tab-${mode}`} className="space-y-3">
+      {cards.map(({ key, member: m, numbers: nums }) => {
+        const share = nums.reduce((sum, number) => sum + number.portion, 0)
         return (
-          <div key={m.id} className="card flex items-center gap-3 p-3">
+          <div key={key} className="card flex items-center gap-3 p-3">
             <Avatar name={m.name} id={m.id} />
             <div className="min-w-0 flex-1">
               <div className="truncate text-lg font-extrabold">{m.name}</div>
               <div className="mt-0.5 flex flex-wrap gap-1">
                 {nums.map((x) => <span key={x.slot_no} className="num rounded-lg bg-ink px-2 py-0.5 text-xs font-bold text-white">#{x.slot_no}{x.portion < 0.99 ? ` ${frac(x.portion)}` : ''}</span>)}
               </div>
+              <div className="num mt-1 text-sm text-fg/60">{money(c.amount * share)} / {t(`perF_${k.frequency}`)}{mode === 'number' && ` · ${roundLabel(k, nums[0].slot_no, lang)}`}</div>
             </div>
-            <button disabled={!!busy} onClick={() => make(m.id, () => memberCardImage({ k, c, member: m, t, lang }), `${safeName(m.name)}-${safeName(k.title)}.png`)}
+            <button disabled={!!busy} onClick={() => make(key, () => memberCardImage({ k, c, member: m, numbers: nums, t, lang, theme }), `${safeName(m.name)}-${safeName(k.title)}${mode === 'number' ? `-${nums[0].slot_no}` : ''}.png`)}
               className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-emerald-500 text-white shadow-[0_8px_25px_-8px_rgba(16,185,129,.9)] active:scale-90" aria-label={t('shareImage')}>
-              {busy === m.id ? <Loader2 className="h-7 w-7 animate-spin" /> : <MessageCircle className="h-7 w-7" />}
+              {busy === key ? <Loader2 className="h-7 w-7 animate-spin" /> : <MessageCircle className="h-7 w-7" />}
             </button>
           </div>
         )
       })}
+      </div>
 
       <Modal open={!!preview} onClose={close} title={t('exportTitle')}>
         {preview && (
           <div>
-            <img src={preview.url} alt="" className="max-h-[55vh] w-full rounded-2xl bg-ink object-contain" />
+            <img src={preview.url} alt={t('exportTitle')} className="max-h-[55vh] w-full rounded-2xl object-contain" style={{ backgroundColor: preview.theme === 'dark' ? '#0F0A1F' : '#F5F3FF' }} />
             <div className="mt-4 grid grid-cols-2 gap-2">
               <Button variant="outline" size="lg" icon={Download} onClick={() => shareOrDownload(preview.blob, preview.filename, null, true)}>{t('download')}</Button>
               <Button variant="trust" size="lg" icon={Share2} onClick={() => shareOrDownload(preview.blob, preview.filename, shareText)}>{t('shareImage')}</Button>

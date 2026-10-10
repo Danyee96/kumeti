@@ -4,7 +4,8 @@ import { n, money, roundLabel, frac, numbersLabel } from './kameti'
 
 const W = 1080
 const PAD = 64
-const C = { ink: '#0F0A1F', ink2: '#1A1330', violet: '#A99BF8', pink: '#8576F2', orange: '#6C5CE7', white: '#FFFFFF', mute: 'rgba(255,255,255,.62)', faint: 'rgba(255,255,255,.08)', line: 'rgba(255,255,255,.12)', green: '#10B981', gold: '#FBBF24' }
+const DARK = { ink: '#0F0A1F', text: '#FFFFFF', violet: '#A99BF8', pink: '#8576F2', orange: '#6C5CE7', white: '#FFFFFF', mute: 'rgba(255,255,255,.62)', faint: 'rgba(255,255,255,.08)', line: 'rgba(255,255,255,.12)', green: '#10B981', success: '#6EE7B7', panel: 'rgba(255,255,255,.06)', badge: 'rgba(255,255,255,.12)', alternate: 'rgba(255,255,255,.04)', gold: '#FBBF24' }
+const LIGHT = { ...DARK, ink: '#F5F3FF', text: '#0F0A1F', mute: '#625A76', faint: '#FFFFFF', line: '#DED8F5', success: '#047857', panel: '#FFFFFF', badge: '#E9E4FC', alternate: '#EDE8FC' }
 
 async function loadFonts(lang) {
   const list = ['800 40px "Plus Jakarta Sans"', '600 40px "Plus Jakarta Sans"', '700 40px "Space Grotesk"']
@@ -12,7 +13,8 @@ async function loadFonts(lang) {
   try { await Promise.all(list.map((f) => document.fonts.load(f, 'Aa1اب'))) } catch { /* fallback fonts are fine */ }
 }
 
-function painter(ctx, lang) {
+function painter(ctx, lang, theme) {
+  const C = theme === 'dark' ? DARK : LIGHT
   const rtl = lang === 'ur'
   const X = (x) => (rtl ? W - x : x)
   const flip = (a) => (!rtl ? a : a === 'left' ? 'right' : a === 'right' ? 'left' : a)
@@ -36,9 +38,9 @@ function painter(ctx, lang) {
       const al = ctx.textAlign
       const left = al === 'right' || (al === 'start' && rtl) || (al === 'end' && !rtl) ? xx - w : al === 'center' ? xx - w / 2 : xx
       const g = ctx.createLinearGradient(left, 0, left + w, 0)
-      g.addColorStop(0, '#C4B5FD'); g.addColorStop(0.5, C.pink); g.addColorStop(1, C.orange)
+      g.addColorStop(0, C === DARK ? '#C4B5FD' : '#5443D2'); g.addColorStop(0.5, C.pink); g.addColorStop(1, C.orange)
       ctx.fillStyle = g
-    } else ctx.fillStyle = o.color || C.white
+    } else ctx.fillStyle = o.color || C.text
     ctx.fillText(s, o.raw ? x : X(x), y)
     return ctx.measureText(s).width
   }
@@ -55,21 +57,23 @@ function painter(ctx, lang) {
     return g
   }
   const circle = (cx, cy, r, fill) => { ctx.beginPath(); ctx.arc(X(cx), cy, r, 0, Math.PI * 2); ctx.fillStyle = fill; ctx.fill() }
-  return { X, text, rr, grad, circle, rtl }
+  return { X, text, rr, grad, circle, rtl, colors: C }
 }
 
-function background(ctx, H) {
+function background(ctx, H, C) {
   ctx.fillStyle = C.ink; ctx.fillRect(0, 0, W, H)
-  const blob = (x, y, r, color) => { const g = ctx.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, color); g.addColorStop(1, 'rgba(15,10,31,0)'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H) }
-  blob(120, 80, 700, 'rgba(108,92,231,.55)')
-  blob(1000, 220, 600, 'rgba(133,118,242,.40)')
-  blob(700, H, 700, 'rgba(108,92,231,.30)')
-  ctx.strokeStyle = 'rgba(255,255,255,.035)'; ctx.lineWidth = 1
+  const dark = C === DARK
+  const blob = (x, y, r, color) => { const g = ctx.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, color); g.addColorStop(1, 'rgba(108,92,231,0)'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H) }
+  blob(120, 80, 700, dark ? 'rgba(108,92,231,.55)' : 'rgba(108,92,231,.10)')
+  blob(1000, 220, 600, dark ? 'rgba(133,118,242,.40)' : 'rgba(133,118,242,.08)')
+  blob(700, H, 700, dark ? 'rgba(108,92,231,.30)' : 'rgba(108,92,231,.06)')
+  ctx.strokeStyle = dark ? 'rgba(255,255,255,.035)' : 'rgba(108,92,231,.035)'; ctx.lineWidth = 1
   for (let x = 0; x < W; x += 54) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke() }
   for (let y = 0; y < H; y += 54) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke() }
 }
 
 function logo(ctx, p, x, y, size = 64) {
+  const C = p.colors
   const s = size / 64
   const xx = p.rtl ? W - x - size : x
   ctx.save(); ctx.translate(xx, y); ctx.scale(s, s)
@@ -85,7 +89,7 @@ function logo(ctx, p, x, y, size = 64) {
   // wordmark always LTR
   ctx.font = '800 44px "Plus Jakarta Sans", sans-serif'; ctx.direction = 'ltr'; ctx.textBaseline = 'alphabetic'
   ctx.textAlign = p.rtl ? 'right' : 'left'
-  ctx.fillStyle = C.white
+  ctx.fillStyle = C.text
   const tx = p.rtl ? W - x - size - 18 : x + size + 18
   ctx.fillText('kumeti', tx - (p.rtl ? ctx.measureText('.').width : 0), y + size * 0.68)
   ctx.fillStyle = C.pink
@@ -93,11 +97,12 @@ function logo(ctx, p, x, y, size = 64) {
 }
 
 function header(ctx, p, k, t, y0) {
+  const C = p.colors
   logo(ctx, p, PAD, y0, 64)
   const typeLabel = t(`type_${k.type}`)
   ctx.font = '700 26px "Plus Jakarta Sans", "Noto Nastaliq Urdu", sans-serif'
   const w = Math.max(160, ctx.measureText(typeLabel).width + 48)
-  p.rr(W - PAD - w, y0 + 8, w, 50, 25, 'rgba(255,255,255,.12)')
+  p.rr(W - PAD - w, y0 + 8, w, 50, 25, C.badge)
   p.text(typeLabel, W - PAD - w / 2, y0 + 42, { size: 26, weight: 700, align: 'center' })
   p.text(k.title, PAD, y0 + 160, { size: 64, weight: 800, max: W - PAD * 2 })
   if (k.organizer?.name) p.text(`${t('organizedBy')}: ${k.organizer.name}`, PAD, y0 + 212, { size: 28, color: C.mute, max: W - PAD * 2 })
@@ -105,6 +110,7 @@ function header(ctx, p, k, t, y0) {
 }
 
 function infoGrid(ctx, p, items, y) {
+  const C = p.colors
   const gap = 20
   const w = (W - PAD * 2 - gap) / 2
   const h = 150
@@ -113,21 +119,23 @@ function infoGrid(ctx, p, items, y) {
     const x = PAD + col * (w + gap), yy = y + row * (h + gap)
     p.rr(x, yy, w, h, 32, it.hot ? p.grad(x, yy, w, h) : C.faint, it.hot ? null : C.line)
     p.text(it.label, x + 32, yy + 54, { size: 26, color: it.hot ? 'rgba(255,255,255,.85)' : C.mute, max: w - 64 })
-    p.text(it.value, x + 32, yy + 112, { size: it.big ? 44 : 40, weight: 800, kind: it.num ? 'num' : 'sans', max: w - 64 })
+    p.text(it.value, x + 32, yy + 112, { size: it.big ? 44 : 40, weight: 800, kind: it.num ? 'num' : 'sans', color: it.hot ? C.white : C.text, max: w - 64 })
   })
   return y + Math.ceil(items.length / 2) * (h + gap)
 }
 
 function footer(ctx, p, t, y, url) {
+  const C = p.colors
   const h = 200
   p.rr(PAD, y, W - PAD * 2, h, 40, p.grad(PAD, y, W - PAD * 2, h))
-  p.text(t('cardJoin'), PAD + 44, y + 78, { size: 38, weight: 800, max: W - PAD * 2 - 88 })
-  p.text(url, PAD + 44, y + 140, { size: 34, weight: 700, kind: 'num', color: C.ink, max: W - PAD * 2 - 88 })
+  p.text(t('cardJoin'), PAD + 44, y + 78, { size: 38, weight: 800, color: C.white, max: W - PAD * 2 - 88 })
+  p.text(url, PAD + 44, y + 140, { size: 34, weight: 700, kind: 'num', color: '#0F0A1F', max: W - PAD * 2 - 88 })
   p.text(t('appTagline'), W / 2, y + h + 70, { size: 26, color: C.mute, align: 'center', raw: true })
   return y + h + 110
 }
 
 function numberBall(ctx, p, x, cy, r, label, locked) {
+  const C = p.colors
   const g = ctx.createLinearGradient(p.X(x) - r, cy - r, p.X(x) + r, cy + r)
   if (locked) { g.addColorStop(0, '#06B6D4'); g.addColorStop(1, C.green) } else { g.addColorStop(0, C.violet); g.addColorStop(0.55, C.pink); g.addColorStop(1, C.orange) }
   p.circle(x, cy, r, g)
@@ -144,7 +152,7 @@ function toBlob(canvas, usedH) {
     out.width = canvas.width; out.height = Math.ceil(usedH)
     out.getContext('2d').drawImage(canvas, 0, 0)
   }
-  return new Promise((res) => out.toBlob((b) => res(b), 'image/png'))
+  return new Promise((res, reject) => out.toBlob((b) => b ? res(b) : reject(new Error('IMAGE_EXPORT_FAILED')), 'image/png'))
 }
 
 export function siteInfo() {
@@ -153,31 +161,33 @@ export function siteInfo() {
 }
 
 /** Member card: their numbers, when each comes out and for how much. */
-export async function memberCardImage({ k, c, member, t, lang }) {
+export async function memberCardImage({ k, c, member, numbers, t, lang, theme = 'light' }) {
   await loadFonts(lang)
-  const nums = c.numbersOf(member.id)
+  const nums = numbers || c.numbersOf(member.id)
+  const share = nums.reduce((sum, number) => sum + n(number.portion), 0)
+  const memberIds = new Set((member.ids || [member.id]).map(n))
   const per = t(`perF_${k.frequency}`)
   const rowH = 132
   const H = 250 + 40 + 260 + 2 * 170 + 120 + nums.length * rowH + 80 + 330 + 40
   const canvas = document.createElement('canvas')
   canvas.width = W; canvas.height = H
   const ctx = canvas.getContext('2d')
-  const p = painter(ctx, lang)
-  background(ctx, H)
+  const p = painter(ctx, lang, theme)
+  const C = p.colors
+  background(ctx, H, C)
   let y = header(ctx, p, k, t, PAD)
 
   // member block
   y += 20
-  p.rr(PAD, y, W - PAD * 2, 230, 40, 'rgba(255,255,255,.06)', C.line)
+  p.rr(PAD, y, W - PAD * 2, 230, 40, C.panel, C.line)
   p.text(t('cardMember'), PAD + 40, y + 62, { size: 26, color: C.mute })
-  p.text(member.name, PAD + 40, y + 140, { size: 68, weight: 800, gradient: true, max: W - PAD * 2 - 300 })
-  p.text(`${numbersLabel(c.shareOf(member.id))} ${t('cardYourNumbers')}`, PAD + 40, y + 196, { size: 28, color: C.mute })
+  p.text(member.name, PAD + 40, y + 140, { size: 68, weight: 800, gradient: true, max: W - PAD * 2 - 80 })
+  p.text(`${numbersLabel(share)} ${t('cardYourNumbers')}`, PAD + 40, y + 196, { size: 28, color: C.mute })
   // number balls on the far side
-  const balls = nums.slice(0, 4)
-  balls.forEach((b, i) => numberBall(ctx, p, W - PAD - 70 - (balls.length - 1 - i) * 92, y + 115, 42, b.slot_no, c.isLocked(b.slot_no)))
+  const balls = nums.slice(0, 5)
+  balls.forEach((b, i) => numberBall(ctx, p, W - PAD - 54 - (balls.length - 1 - i) * 64, y + 190, 25, b.slot_no, c.isLocked(b.slot_no)))
   y += 270
 
-  const share = c.shareOf(member.id)
   y = infoGrid(ctx, p, [
     { label: t('cardStart'), value: roundLabel(k, 1, lang) },
     { label: t('cardEnd'), value: roundLabel(k, c.slots, lang) },
@@ -191,13 +201,13 @@ export async function memberCardImage({ k, c, member, t, lang }) {
   y += 80
   nums.forEach((b) => {
     const holders = c.receiversOf(b.slot_no)
-    const others = holders.filter((h) => h.member_id !== n(member.id)).map((h) => h.member.name)
+    const others = [...new Set(holders.filter((h) => !memberIds.has(n(h.member_id))).map((h) => h.member.name))]
     const amount = Math.round(c.payoutFor(b.slot_no) * b.portion)
     p.rr(PAD, y, W - PAD * 2, rowH - 18, 30, C.faint, C.line)
     numberBall(ctx, p, PAD + 66, y + (rowH - 18) / 2, 40, b.slot_no, c.isLocked(b.slot_no))
     p.text(roundLabel(k, b.slot_no, lang), PAD + 134, y + 54, { size: 34, weight: 800, max: 470 })
     const sub = [b.portion < 0.99 ? `${frac(b.portion)} ${t('number')}` : '', others.length ? `${t('cardShared')} ${others.join(', ')}` : '', c.isLocked(b.slot_no) ? `✓ ${t('cardReceived')}` : ''].filter(Boolean).join(' · ')
-    if (sub) p.text(sub, PAD + 134, y + 94, { size: 24, color: c.isLocked(b.slot_no) ? '#6EE7B7' : C.mute, max: 470 })
+    if (sub) p.text(sub, PAD + 134, y + 94, { size: 24, color: c.isLocked(b.slot_no) ? C.success : C.mute, max: 470 })
     p.text(money(amount), W - PAD - 40, y + 72, { size: 40, weight: 700, kind: 'num', align: 'right', gradient: true })
     y += rowH
   })
@@ -207,7 +217,7 @@ export async function memberCardImage({ k, c, member, t, lang }) {
 }
 
 /** Full chart of all numbers for the WhatsApp group. */
-export async function chartImage({ k, c, t, lang }) {
+export async function chartImage({ k, c, t, lang, theme = 'light' }) {
   await loadFonts(lang)
   const per = t(`perF_${k.frequency}`)
   const rowH = 112
@@ -215,8 +225,9 @@ export async function chartImage({ k, c, t, lang }) {
   const canvas = document.createElement('canvas')
   canvas.width = W; canvas.height = H
   const ctx = canvas.getContext('2d')
-  const p = painter(ctx, lang)
-  background(ctx, H)
+  const p = painter(ctx, lang, theme)
+  const C = p.colors
+  background(ctx, H, C)
   let y = header(ctx, p, k, t, PAD)
   y += 20
   y = infoGrid(ctx, p, [
@@ -231,10 +242,10 @@ export async function chartImage({ k, c, t, lang }) {
   for (let r = 1; r <= c.slots; r++) {
     const holders = c.receiversOf(r)
     const names = holders.map((h) => `${h.member.name}${h.portion < 0.99 ? ` ${frac(h.portion)}` : ''}`).join(' + ') || '—'
-    p.rr(PAD, y, W - PAD * 2, rowH - 14, 28, r % 2 ? C.faint : 'rgba(255,255,255,.04)', C.line)
+    p.rr(PAD, y, W - PAD * 2, rowH - 14, 28, r % 2 ? C.faint : C.alternate, C.line)
     numberBall(ctx, p, PAD + 56, y + (rowH - 14) / 2, 34, r, c.isLocked(r))
     p.text(names, PAD + 116, y + 46, { size: 30, weight: 800, max: 560 })
-    p.text(roundLabel(k, r, lang), PAD + 116, y + 84, { size: 24, color: c.isLocked(r) ? '#6EE7B7' : C.mute, max: 560 })
+    p.text(roundLabel(k, r, lang), PAD + 116, y + 84, { size: 24, color: c.isLocked(r) ? C.success : C.mute, max: 560 })
     p.text(money(c.payoutFor(r)), W - PAD - 36, y + 64, { size: 32, weight: 700, kind: 'num', align: 'right' })
     y += rowH
   }

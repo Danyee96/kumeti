@@ -206,17 +206,33 @@ case 'kametis/save':
     $cfgJson = json_encode(is_array($config) ? $config : [], JSON_UNESCAPED_UNICODE);
     if ($id) {
         $k = kameti_for($id, $u, true);
+        if ((int)one('SELECT COUNT(*) c FROM kameti_members WHERE kameti_id = ?', [$id])['c'] > $slots) fail('KAMETI_CAPACITY');
         $status = in('status', $k['status']);
         if (!in_array($status, ['active', 'completed', 'paused'], true)) $status = 'active';
         q('UPDATE kametis SET title=?, type=?, frequency=?, amount=?, slots=?, start_date=?, config=?, notes=?, status=? WHERE id=?',
             [$title, $type, $freq, $amount, $slots, $start, $cfgJson, $notes, $status, $id]);
     } else {
+        // Validate capacity before creating any records, including direct API submissions.
+        $members = array_values((array)in('members', []));
+        if (count($members) > $slots) fail('KAMETI_CAPACITY');
+        foreach ($members as $m) if (!is_array($m) || !clean_str($m['name'] ?? null, 120)) fail('MISSING_FIELDS');
+        $totals = array_fill(1, $slots, 0.0);
+        foreach ((array)in('numbers', []) as $sl) {
+            $slot = (int)($sl['slot_no'] ?? 0);
+            if ($slot < 1 || $slot > $slots) fail('KAMETI_CAPACITY');
+            foreach ((array)($sl['holders'] ?? []) as $h) {
+                $portion = (float)($h['portion'] ?? 0);
+                if (!isset($members[$h['m'] ?? -1]) || !is_finite($portion) || $portion <= 0 || $portion > 1) fail('KAMETI_CAPACITY');
+                $totals[$slot] += $portion;
+            }
+        }
+        foreach ($totals as $total) if (abs($total - 1) > 0.001) fail('KAMETI_CAPACITY');
         q('INSERT INTO kametis (organizer_id,title,type,frequency,amount,slots,start_date,status,config,notes,created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?)',
             [$u['id'], $title, $type, $freq, $amount, $slots, $start, 'active', $cfgJson, $notes, now()]);
         $id = (int)db()->lastInsertId();
         // members: [{name, phone, email}], numbers: [{slot_no, holders: [{m: memberIndex, portion}]}]
         $map = [];
-        foreach (array_values((array)in('members', [])) as $i => $m) {
+        foreach ($members as $i => $m) {
             $mn = clean_str($m['name'] ?? null, 120);
             if (!$mn) continue;
             $map[$i] = add_member($id, $mn, clean_str($m['phone'] ?? null, 40), clean_str($m['email'] ?? null, 160), $i);
@@ -252,6 +268,7 @@ case 'members/save':
         q('UPDATE kameti_members SET name=?, phone=?, email=?, user_id = COALESCE(?, user_id) WHERE id=? AND kameti_id=?',
             [$name, $phone, $email, $linked['id'] ?? null, $id, $k['id']]);
     } else {
+        if ((int)one('SELECT COUNT(*) c FROM kameti_members WHERE kameti_id = ?', [$k['id']])['c'] >= (int)$k['slots']) fail('KAMETI_CAPACITY');
         $pos = (int)one('SELECT COALESCE(MAX(position), -1) + 1 p FROM kameti_members WHERE kameti_id = ?', [$k['id']])['p'];
         $id = add_member((int)$k['id'], $name, $phone, $email, $pos);
     }
