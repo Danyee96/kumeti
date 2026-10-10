@@ -1,0 +1,6 @@
+node_modules
+dist
+kumeti-config.php
+kumeti-data.sqlite
+public/api/config.php
+.DS_Store

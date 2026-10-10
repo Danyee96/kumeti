@@ -1,0 +1,31 @@
+# Builds the app on every push to main and publishes the ready-to-serve files
+# to the "hostinger" branch. In hPanel → Git, deploy branch "hostinger" into public_html.
+name: Build for Hostinger
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Publish dist to hostinger branch
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: hostinger
+          folder: dist
+          clean: true
+          clean-exclude: |
+            kumeti-config.php

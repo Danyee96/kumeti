@@ -1,0 +1,190 @@
+import { createContext, useContext, useEffect, useState, useCallback } from 'react'
+
+const en = {
+  appTagline: 'Apni baari, apne waqt pe',
+  login: 'Login', logout: 'Logout', register: 'Create account', getStarted: 'Get started',
+  email: 'Email', emailOrPhone: 'Email or phone', password: 'Password', name: 'Name', phone: 'Phone',
+  welcomeBack: 'Welcome back', loginSub: 'Sign in to manage your kameti', demoAccounts: 'Demo accounts — tap to fill',
+  superadmin: 'Super admin', organizer: 'Organizer', member: 'Member',
+  noAccount: "Don't have an account?", haveAccount: 'Already have an account?',
+  registerTitle: 'Start your kameti', registerSub: 'Create a free organizer account',
+  save: 'Save', saved: 'Saved', cancel: 'Cancel', delete: 'Delete', edit: 'Edit', add: 'Add', back: 'Back', next: 'Next',
+  close: 'Close', confirm: 'Confirm', search: 'Search', yes: 'Yes', no: 'No', optional: 'optional', all: 'All', view: 'View',
+  loading: 'Loading…', areYouSure: 'Are you sure?', cannotUndo: 'This cannot be undone.',
+  dashboard: 'Dashboard', myKametis: 'My kametis', kametis: 'Kametis', allKametis: 'All kametis', users: 'Users',
+  landingPage: 'Landing page', settings: 'Settings', profile: 'Profile', newKameti: 'New kameti',
+  hello: 'Assalam o Alaikum', overview: 'Overview',
+  totalUsers: 'Total users', totalKametis: 'Total kametis', activeKametis: 'Active kametis', totalVolume: 'Total volume',
+  collected: 'Collected', pending: 'Pending', members: 'Members', payments: 'Payments', turns: 'Turns', payouts: 'Payouts',
+  amount: 'Amount', perMember: 'Per member', pot: 'Committee amount', duration: 'Duration', rounds: 'Rounds', round: 'Round',
+  startDate: 'Start date', endDate: 'End date', frequency: 'Frequency', type: 'Type', status: 'Status', title: 'Kameti name',
+  monthly: 'Monthly', weekly: 'Weekly', daily: 'Daily', months: 'months', weeks: 'weeks', days: 'days',
+  active: 'Active', completed: 'Completed', paused: 'Paused', disabled: 'Disabled',
+  paid: 'Paid', unpaid: 'Unpaid', given: 'Given', notGiven: 'Not given',
+  // types
+  type_fixed: 'Fixed order', type_fixed_ur: 'Muqarrar tarteeb',
+  type_fixed_desc: 'You decide the turn order. Best when everyone already agreed who gets it when.',
+  type_qurandazi: 'Lucky draw', type_qurandazi_ur: 'Qurandazi',
+  type_qurandazi_desc: 'Turns decided by a fair random draw. One tap and everyone gets a number.',
+  type_boli: 'Auction', type_boli_ur: 'Boli / Neelami',
+  type_boli_desc: 'Members bid each round. Highest bid takes the pot early, the discount is shared.',
+  type_half: 'Half share', type_half_ur: 'Aadha hissa',
+  type_half_desc: 'Two people can share one seat — each pays half and gets half.',
+  type_zaroorat: 'Need based', type_zaroorat_ur: 'Zaroorat ki buniyad',
+  type_zaroorat_desc: 'Organizer gives the turn to whoever needs it most each round — weddings, emergencies.',
+  // wizard
+  chooseType: 'Choose kameti type', basics: 'Basic details', rulesStep: 'Rules', membersStep: 'Members', review: 'Review',
+  amountPerRound: 'Amount each member pays', howManyMembers: 'Total turns (members)', calcTitle: 'Your kameti at a glance',
+  everyone: 'Everyone pays', eachGets: 'Each turn gets', lastPayout: 'Last payout', totalEach: 'Each person pays in total',
+  dueDay: 'Payment due day', dueDayHint: 'Day of the month by which payment is due', lateFee: 'Late fee (Rs)',
+  graceDays: 'Grace days', organizerFee: 'Organizer fee (%)', organizerFeeHint: 'Kept by organizer from each payout',
+  rulesNotes: 'Extra rules', rulesPlaceholder: 'e.g. Payment in cash by 5th, late payers pay Rs 200…',
+  orderBasis: 'How is the order decided?', order_manual: 'I will set it', order_joining: 'By joining order',
+  drawMode: 'When is the draw?', draw_all_at_once: 'All numbers at once (one shuffle)', draw_every_round: 'New draw every round',
+  drawInFront: 'Draw in front of everyone', minBid: 'Minimum bid (Rs)', maxBidPercent: 'Maximum bid (% of pot)', bidStep: 'Bid step (Rs)',
+  profitSharing: 'Bid discount goes to', share_all_members: 'All members (reduces their payment)', share_organizer: 'Organizer',
+  lastNoBid: 'Last turn gets full amount (no bid)', pairing: 'Half-share pairing', pairing_auto: 'Auto pair halves', pairing_manual: 'I will pair them',
+  requireReason: 'Ask reason for need', emergencyPriority: 'Emergencies get priority',
+  addMember: 'Add member', bulkAdd: 'Add many names', bulkHint: 'One name per line. Phone after a comma is optional.',
+  memberNameOnly: 'Only name is required. Add email or phone to give them a login later.',
+  share: 'Share', fullShare: 'Full', halfShare: 'Half', turnNo: 'Turn #', noTurn: 'Not decided',
+  sharesMismatch: 'Members ({have}) do not match turns ({need}).', sharesMatch: 'Members match turns',
+  createKameti: 'Create kameti', kametiCreated: 'Kameti created',
+  // detail
+  currentRound: 'Current round', roundOf: 'Round {r} of {t}', thisRound: 'This round', receives: 'Receives',
+  nextReceiver: 'Next receiver', shuffle: 'Shuffle — Qurandazi', shuffleAgain: 'Shuffle again', shuffling: 'Shuffling…',
+  shuffleDone: 'Draw complete! Everyone has a number.', drawThisRound: 'Draw for round {r}', winnerIs: 'Winner',
+  markAllPaid: 'Mark all paid', markPaid: 'Mark paid', markGiven: 'Mark payout given', recordBid: 'Record bid winner',
+  bidAmount: 'Bid amount (discount)', chooseReceiver: 'Choose receiver', reason: 'Reason', payoutAmount: 'Payout amount',
+  remind: 'Remind', reminderText: 'Assalam o Alaikum {name}, aap ki kameti "{title}" ki round {r} ki qist {amount} baqi hai. Shukriya!',
+  giveLogin: 'Give login', loginCreated: 'Login created', loginLinked: 'Linked to existing account', tempPassword: 'Password',
+  needEmailPhone: 'Add email or phone first', moveUp: 'Move up', moveDown: 'Move down', saveOrder: 'Save order',
+  editKameti: 'Edit kameti', deleteKameti: 'Delete kameti', noMembers: 'No members yet',
+  progress: 'Progress', paidCount: '{p} of {t} paid', dividend: 'Bid discount per share', due: 'Due',
+  yourTurn: 'Your turn', yourTurnIn: 'Your turn: round {r}', youReceived: 'You received your kameti', youPay: 'You pay',
+  payNow: 'Payment due', allClear: 'All clear', paidThisRound: 'Paid this round', notPaidThisRound: 'Not paid this round',
+  organizedBy: 'Organized by', lockedTurns: 'Locked (already paid out)', reorderTurns: 'Set order', history: 'History', schedule: 'Schedule',
+  // admin
+  addUser: 'Add user', role: 'Role', newPassword: 'New password', currentPassword: 'Current password',
+  leaveBlank: 'leave blank to keep', recentUsers: 'Recent users', byType: 'By type',
+  siteName: 'Site name', allowSignup: 'Allow organizer sign-up', showDemo: 'Show demo account buttons on login', whatsapp: 'WhatsApp number', currency: 'Currency',
+  landingEditor: 'Landing page editor', preview: 'Preview', sectionVisible: 'Show this section',
+  language: 'Language', changePassword: 'Change password', emptyKametis: 'No kametis yet', emptyKametisSub: 'Create your first kameti in under a minute.',
+  memberEmpty: 'You are not in any kameti yet', memberEmptySub: 'Ask your organizer to add you with this email or phone.',
+  errors: {
+    INVALID_LOGIN: 'Wrong email/phone or password', MISSING_FIELDS: 'Please fill the required fields',
+    EMAIL_TAKEN: 'Email already used', PHONE_TAKEN: 'Phone already used', PASSWORD_SHORT: 'Password must be 6+ characters',
+    WRONG_PASSWORD: 'Current password is wrong', SIGNUP_DISABLED: 'Sign-up is closed', ACCOUNT_DISABLED: 'Account disabled',
+    NOT_INSTALLED: 'App not installed yet — open /api/install.php', NEED_EMAIL_OR_PHONE: 'Add email or phone first',
+    USER_HAS_KAMETIS: 'User owns kametis — delete those first', CANNOT_DELETE_SELF: 'You cannot delete yourself',
+    CANNOT_DEMOTE_SELF: 'You cannot disable or demote yourself', NO_MEMBERS_LEFT: 'Everyone already has a turn',
+    ROUND_ALREADY_DRAWN: 'This round is already drawn', FORBIDDEN: 'Not allowed', NETWORK: 'Network error — check connection',
+  },
+}
+
+const ur = {
+  appTagline: 'اپنی باری، اپنے وقت پہ',
+  login: 'لاگ اِن', logout: 'لاگ آؤٹ', register: 'اکاؤنٹ بنائیں', getStarted: 'شروع کریں',
+  email: 'ای میل', emailOrPhone: 'ای میل یا فون', password: 'پاس ورڈ', name: 'نام', phone: 'فون',
+  welcomeBack: 'خوش آمدید', loginSub: 'اپنی کمیٹی سنبھالنے کے لیے لاگ اِن کریں', demoAccounts: 'ڈیمو اکاؤنٹ — دبائیں',
+  superadmin: 'سپر ایڈمن', organizer: 'آرگنائزر', member: 'ممبر',
+  noAccount: 'اکاؤنٹ نہیں ہے؟', haveAccount: 'پہلے سے اکاؤنٹ ہے؟',
+  registerTitle: 'اپنی کمیٹی شروع کریں', registerSub: 'مفت آرگنائزر اکاؤنٹ بنائیں',
+  save: 'محفوظ کریں', saved: 'محفوظ ہو گیا', cancel: 'منسوخ', delete: 'حذف کریں', edit: 'تبدیل کریں', add: 'شامل کریں', back: 'واپس', next: 'آگے',
+  close: 'بند کریں', confirm: 'تصدیق', search: 'تلاش', yes: 'ہاں', no: 'نہیں', optional: 'اختیاری', all: 'سب', view: 'دیکھیں',
+  loading: 'لوڈ ہو رہا ہے…', areYouSure: 'کیا آپ کو یقین ہے؟', cannotUndo: 'یہ واپس نہیں ہو گا۔',
+  dashboard: 'ڈیش بورڈ', myKametis: 'میری کمیٹیاں', kametis: 'کمیٹیاں', allKametis: 'تمام کمیٹیاں', users: 'یوزرز',
+  landingPage: 'لینڈنگ پیج', settings: 'سیٹنگز', profile: 'پروفائل', newKameti: 'نئی کمیٹی',
+  hello: 'السلام علیکم', overview: 'خلاصہ',
+  totalUsers: 'کل یوزرز', totalKametis: 'کل کمیٹیاں', activeKametis: 'چلتی کمیٹیاں', totalVolume: 'کل رقم',
+  collected: 'جمع ہوا', pending: 'باقی', members: 'ممبرز', payments: 'ادائیگیاں', turns: 'باریاں', payouts: 'کمیٹی دی گئی',
+  amount: 'رقم', perMember: 'فی ممبر', pot: 'کمیٹی کی رقم', duration: 'مدت', rounds: 'راؤنڈ', round: 'راؤنڈ',
+  startDate: 'شروع کی تاریخ', endDate: 'آخری تاریخ', frequency: 'کتنی بار', type: 'قسم', status: 'حالت', title: 'کمیٹی کا نام',
+  monthly: 'ماہانہ', weekly: 'ہفتہ وار', daily: 'روزانہ', months: 'مہینے', weeks: 'ہفتے', days: 'دن',
+  active: 'چل رہی ہے', completed: 'مکمل', paused: 'رکی ہوئی', disabled: 'بند',
+  paid: 'ادا', unpaid: 'باقی', given: 'دے دی', notGiven: 'نہیں دی',
+  type_fixed: 'مقررہ ترتیب', type_fixed_ur: 'Fixed order',
+  type_fixed_desc: 'باری کی ترتیب آپ خود طے کریں۔ جب سب پہلے سے متفق ہوں۔',
+  type_qurandazi: 'قرعہ اندازی', type_qurandazi_ur: 'Lucky draw',
+  type_qurandazi_desc: 'ایک بٹن دبائیں، سب کو انصاف سے نمبر مل جائے گا۔',
+  type_boli: 'بولی والی کمیٹی', type_boli_ur: 'Auction',
+  type_boli_desc: 'ہر راؤنڈ بولی لگے، زیادہ بولی والا پہلے لے، رعایت سب میں بٹے۔',
+  type_half: 'آدھا حصہ', type_half_ur: 'Half share',
+  type_half_desc: 'دو لوگ ایک حصہ بانٹ سکتے ہیں — آدھا دیں، آدھا لیں۔',
+  type_zaroorat: 'ضرورت کی بنیاد', type_zaroorat_ur: 'Need based',
+  type_zaroorat_desc: 'جس کو زیادہ ضرورت ہو اسے باری — شادی، ایمرجنسی وغیرہ۔',
+  chooseType: 'کمیٹی کی قسم چنیں', basics: 'بنیادی معلومات', rulesStep: 'اصول', membersStep: 'ممبرز', review: 'جائزہ',
+  amountPerRound: 'ہر ممبر کتنی رقم دے گا', howManyMembers: 'کل باریاں (ممبرز)', calcTitle: 'آپ کی کمیٹی ایک نظر میں',
+  everyone: 'ہر ایک دے گا', eachGets: 'ہر باری میں ملے گا', lastPayout: 'آخری باری', totalEach: 'ہر ایک کل دے گا',
+  dueDay: 'ادائیگی کی تاریخ', dueDayHint: 'مہینے کی کس تاریخ تک رقم دینی ہے', lateFee: 'دیر کا جرمانہ (روپے)',
+  graceDays: 'رعایتی دن', organizerFee: 'آرگنائزر فیس (%)', organizerFeeHint: 'ہر کمیٹی میں سے آرگنائزر کا حصہ',
+  rulesNotes: 'اضافی اصول', rulesPlaceholder: 'مثلاً 5 تاریخ تک نقد ادائیگی…',
+  orderBasis: 'ترتیب کیسے طے ہو گی؟', order_manual: 'میں خود طے کروں گا', order_joining: 'شامل ہونے کی ترتیب سے',
+  drawMode: 'قرعہ اندازی کب؟', draw_all_at_once: 'ایک ساتھ سب کے نمبر', draw_every_round: 'ہر راؤنڈ نئی قرعہ اندازی',
+  drawInFront: 'سب کے سامنے قرعہ اندازی', minBid: 'کم از کم بولی (روپے)', maxBidPercent: 'زیادہ سے زیادہ بولی (%)', bidStep: 'بولی کا فرق (روپے)',
+  profitSharing: 'بولی کی رعایت کس کو', share_all_members: 'تمام ممبرز (قسط کم ہو گی)', share_organizer: 'آرگنائزر',
+  lastNoBid: 'آخری باری کو پوری رقم', pairing: 'آدھے حصے کی جوڑی', pairing_auto: 'خود بخود جوڑی', pairing_manual: 'میں جوڑی بناؤں گا',
+  requireReason: 'ضرورت کی وجہ پوچھیں', emergencyPriority: 'ایمرجنسی کو ترجیح',
+  addMember: 'ممبر شامل کریں', bulkAdd: 'بہت سے نام ایک ساتھ', bulkHint: 'ہر لائن میں ایک نام۔ کامہ کے بعد فون اختیاری۔',
+  memberNameOnly: 'صرف نام ضروری ہے۔ بعد میں لاگ اِن دینے کے لیے ای میل یا فون ڈالیں۔',
+  share: 'حصہ', fullShare: 'پورا', halfShare: 'آدھا', turnNo: 'باری نمبر', noTurn: 'طے نہیں',
+  sharesMismatch: 'ممبرز ({have}) اور باریاں ({need}) برابر نہیں۔', sharesMatch: 'ممبرز اور باریاں برابر ہیں',
+  createKameti: 'کمیٹی بنائیں', kametiCreated: 'کمیٹی بن گئی',
+  currentRound: 'موجودہ راؤنڈ', roundOf: 'راؤنڈ {r} از {t}', thisRound: 'اس راؤنڈ', receives: 'وصول کرے گا',
+  nextReceiver: 'اگلی باری', shuffle: 'قرعہ اندازی کریں', shuffleAgain: 'دوبارہ قرعہ اندازی', shuffling: 'قرعہ اندازی ہو رہی ہے…',
+  shuffleDone: 'قرعہ اندازی مکمل! سب کو نمبر مل گیا۔', drawThisRound: 'راؤنڈ {r} کی قرعہ اندازی', winnerIs: 'جیتنے والا',
+  markAllPaid: 'سب کو ادا کریں', markPaid: 'ادا کریں', markGiven: 'کمیٹی دے دی', recordBid: 'بولی جیتنے والا',
+  bidAmount: 'بولی (رعایت)', chooseReceiver: 'وصول کرنے والا چنیں', reason: 'وجہ', payoutAmount: 'دی جانے والی رقم',
+  remind: 'یاد دہانی', reminderText: 'السلام علیکم {name}، آپ کی کمیٹی "{title}" کے راؤنڈ {r} کی قسط {amount} باقی ہے۔ شکریہ!',
+  giveLogin: 'لاگ اِن دیں', loginCreated: 'لاگ اِن بن گیا', loginLinked: 'پرانے اکاؤنٹ سے جڑ گیا', tempPassword: 'پاس ورڈ',
+  needEmailPhone: 'پہلے ای میل یا فون ڈالیں', moveUp: 'اوپر', moveDown: 'نیچے', saveOrder: 'ترتیب محفوظ کریں',
+  editKameti: 'کمیٹی تبدیل کریں', deleteKameti: 'کمیٹی حذف کریں', noMembers: 'ابھی کوئی ممبر نہیں',
+  progress: 'پیش رفت', paidCount: '{t} میں سے {p} نے ادا کیا', dividend: 'فی حصہ رعایت', due: 'واجب',
+  yourTurn: 'آپ کی باری', yourTurnIn: 'آپ کی باری: راؤنڈ {r}', youReceived: 'آپ کو کمیٹی مل چکی', youPay: 'آپ کی قسط',
+  payNow: 'ادائیگی باقی', allClear: 'سب ٹھیک', paidThisRound: 'اس راؤنڈ ادا ہو گیا', notPaidThisRound: 'اس راؤنڈ ادا نہیں ہوا',
+  organizedBy: 'آرگنائزر', lockedTurns: 'لاک (کمیٹی مل چکی)', reorderTurns: 'ترتیب بدلیں', history: 'تاریخچہ', schedule: 'شیڈول',
+  addUser: 'یوزر شامل کریں', role: 'کردار', newPassword: 'نیا پاس ورڈ', currentPassword: 'موجودہ پاس ورڈ',
+  leaveBlank: 'خالی چھوڑیں تو پرانا رہے گا', recentUsers: 'نئے یوزرز', byType: 'قسم کے لحاظ سے',
+  siteName: 'سائٹ کا نام', allowSignup: 'آرگنائزر سائن اپ کی اجازت', showDemo: 'لاگ اِن پر ڈیمو بٹن دکھائیں', whatsapp: 'واٹس ایپ نمبر', currency: 'کرنسی',
+  landingEditor: 'لینڈنگ پیج ایڈیٹر', preview: 'دیکھیں', sectionVisible: 'یہ حصہ دکھائیں',
+  language: 'زبان', changePassword: 'پاس ورڈ تبدیل کریں', emptyKametis: 'ابھی کوئی کمیٹی نہیں', emptyKametisSub: 'ایک منٹ میں پہلی کمیٹی بنائیں۔',
+  memberEmpty: 'آپ ابھی کسی کمیٹی میں نہیں', memberEmptySub: 'آرگنائزر سے کہیں کہ اسی ای میل یا فون سے آپ کو شامل کرے۔',
+  errors: {
+    INVALID_LOGIN: 'ای میل/فون یا پاس ورڈ غلط ہے', MISSING_FIELDS: 'ضروری خانے بھریں',
+    EMAIL_TAKEN: 'یہ ای میل پہلے سے موجود ہے', PHONE_TAKEN: 'یہ فون پہلے سے موجود ہے', PASSWORD_SHORT: 'پاس ورڈ کم از کم 6 حروف',
+    WRONG_PASSWORD: 'موجودہ پاس ورڈ غلط ہے', SIGNUP_DISABLED: 'سائن اپ بند ہے', ACCOUNT_DISABLED: 'اکاؤنٹ بند ہے',
+    NOT_INSTALLED: 'ایپ انسٹال نہیں — /api/install.php کھولیں', NEED_EMAIL_OR_PHONE: 'پہلے ای میل یا فون ڈالیں',
+    USER_HAS_KAMETIS: 'اس یوزر کی کمیٹیاں ہیں — پہلے وہ حذف کریں', CANNOT_DELETE_SELF: 'آپ خود کو حذف نہیں کر سکتے',
+    CANNOT_DEMOTE_SELF: 'آپ خود کو بند نہیں کر سکتے', NO_MEMBERS_LEFT: 'سب کو باری مل چکی',
+    ROUND_ALREADY_DRAWN: 'اس راؤنڈ کی قرعہ اندازی ہو چکی', FORBIDDEN: 'اجازت نہیں', NETWORK: 'نیٹ ورک کا مسئلہ',
+  },
+}
+
+const DICT = { en, ur }
+const LangCtx = createContext(null)
+
+export function LangProvider({ children }) {
+  const [lang, setLangState] = useState(() => {
+    try { return localStorage.getItem('kumeti_lang') || 'en' } catch { return 'en' }
+  })
+  useEffect(() => {
+    document.documentElement.lang = lang
+    document.documentElement.dir = lang === 'ur' ? 'rtl' : 'ltr'
+    document.documentElement.classList.toggle('urdu', lang === 'ur')
+  }, [lang])
+  const setLang = useCallback((l) => {
+    setLangState(l)
+    try { localStorage.setItem('kumeti_lang', l) } catch { /* storage unavailable */ }
+  }, [])
+  const t = useCallback((key, vars) => {
+    let s = DICT[lang][key] ?? en[key] ?? key
+    if (vars && typeof s === 'string') for (const [k, v] of Object.entries(vars)) s = s.replaceAll(`{${k}}`, v)
+    return s
+  }, [lang])
+  const err = useCallback((code) => DICT[lang].errors[code] || en.errors[code] || code, [lang])
+  // Pick the right language from a {en, ur} object (used by editable landing content).
+  const pick = useCallback((obj) => (obj && typeof obj === 'object' ? (obj[lang] || obj.en || '') : obj || ''), [lang])
+  return <LangCtx.Provider value={{ lang, setLang, t, err, pick }}>{children}</LangCtx.Provider>
+}
+
+export const useLang = () => useContext(LangCtx)
