@@ -1,0 +1,9 @@
+{
+  "name": "Kumeti",
+  "short_name": "Kumeti",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0F0A1F",
+  "theme_color": "#A99BF8",
+  "icons": [{ "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}
