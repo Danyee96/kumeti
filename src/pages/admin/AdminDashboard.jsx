@@ -23,7 +23,7 @@ export default function AdminDashboard() {
             <div className="flex items-center gap-2 text-sm font-semibold text-white/70"><Crown className="h-4 w-4 text-amber-300" />{t('superadmin')}</div>
             <div className="mt-3 text-white/70">{t('totalVolume')}</div>
             <div className="num text-4xl font-bold sm:text-5xl">{money(s.volume)}</div>
-            <div className="text-white/60">{lakh(s.volume, lang)}</div>
+            <div className="num mt-1 text-xl font-bold text-white sm:text-2xl">{lakh(s.volume, lang)}</div>
           </div>
           <Link to="/admin/landing"><Button variant="white" icon={Globe}>{t('landingEditor')}</Button></Link>
         </div>

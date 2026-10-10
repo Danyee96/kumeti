@@ -121,7 +121,7 @@ function schema(string $driver): array {
             kameti_id $ref NOT NULL,
             slot_no INT NOT NULL,
             member_id $ref NOT NULL,
-            portion DECIMAL(6,4) NOT NULL DEFAULT 1
+            `portion` DECIMAL(6,4) NOT NULL DEFAULT 1
         )$tail",
     ];
 }
@@ -137,7 +137,7 @@ function migrate(PDO $pdo, string $driver): void {
     foreach (schema($driver) as $sql) $pdo->exec($sql);
     if ((int)$pdo->query('SELECT COUNT(*) FROM kameti_slots')->fetchColumn() === 0) {
         $rows = $pdo->query('SELECT id, kameti_id, turn_no, share FROM kameti_members WHERE turn_no IS NOT NULL')->fetchAll(PDO::FETCH_ASSOC);
-        $ins = $pdo->prepare('INSERT INTO kameti_slots (kameti_id, slot_no, member_id, portion) VALUES (?,?,?,?)');
+        $ins = $pdo->prepare('INSERT INTO kameti_slots (kameti_id, slot_no, member_id, `portion`) VALUES (?,?,?,?)');
         foreach ($rows as $r) $ins->execute([$r['kameti_id'], $r['turn_no'], $r['id'], $r['share'] ?: 1]);
     }
     $pdo->prepare('DELETE FROM settings WHERE skey = ?')->execute(['schema_version']);
@@ -178,7 +178,7 @@ function seed_demo(PDO $pdo): void {
     }
     [$ayesha, $fatima, $bilal, $sana, $usman, $hamza] = $ids;
     $holdings = [[1, $ayesha, 1], [2, $fatima, 1], [3, $bilal, 1], [4, $sana, .5], [4, $usman, .5], [5, $hamza, 1], [6, $bilal, 1]];
-    $h = $pdo->prepare('INSERT INTO kameti_slots (kameti_id, slot_no, member_id, portion) VALUES (?,?,?,?)');
+    $h = $pdo->prepare('INSERT INTO kameti_slots (kameti_id, slot_no, member_id, `portion`) VALUES (?,?,?,?)');
     foreach ($holdings as [$slot, $mid, $por]) $h->execute([$kid, $slot, $mid, $por]);
     $due = [$ayesha => 10000, $fatima => 10000, $bilal => 20000, $sana => 5000, $usman => 5000, $hamza => 10000];
     $p = $pdo->prepare('INSERT INTO payments (kameti_id,member_id,round_no,amount,paid_at) VALUES (?,?,?,?,?)');
