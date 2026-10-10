@@ -10,7 +10,7 @@ const VARIANTS = {
   grad: 'bg-baari text-white shadow-glow hover:brightness-110',
   trust: 'bg-trust text-white shadow-[0_15px_40px_-15px_rgba(16,185,129,.7)] hover:brightness-110',
   dark: 'bg-ink text-white hover:bg-ink-3',
-  outline: 'border-2 border-violet-200 bg-surface text-fg hover:border-fuchsia-300 hover:bg-violet-50',
+  outline: 'border-2 border-violet-200 bg-surface text-fg hover:border-violet-300 hover:bg-violet-50',
   ghost: 'text-fg/70 hover:bg-violet-100/70 hover:text-fg',
   danger: 'bg-red-500 text-white hover:bg-red-600',
   soft: 'bg-violet-100 text-violet-700 hover:bg-violet-200',
@@ -85,7 +85,7 @@ export function Segmented({ value, onChange, options, className }) {
 export function Badge({ tone = 'violet', children, className }) {
   const tones = {
     violet: 'bg-violet-100 text-violet-700', green: 'bg-emerald-100 text-emerald-700', red: 'bg-red-100 text-red-600',
-    amber: 'bg-amber-100 text-amber-700', cyan: 'bg-cyan-100 text-cyan-700', pink: 'bg-pink-100 text-pink-700', gray: 'bg-gray-100 text-gray-600',
+    amber: 'bg-amber-100 text-amber-700', cyan: 'bg-cyan-100 text-cyan-700', pink: 'bg-violet-100 text-violet-700', gray: 'bg-gray-100 text-gray-600',
   }
   return <span className={cx('chip', tones[tone], className)}>{children}</span>
 }
@@ -96,7 +96,7 @@ export function Avatar({ name, id, size = 'md', className }) {
 }
 
 export function Spinner({ className }) {
-  return <div className={cx('grid place-items-center py-20', className)}><Loader2 className="h-8 w-8 animate-spin text-fuchsia-500" /></div>
+  return <div className={cx('grid place-items-center py-20', className)}><Loader2 className="h-8 w-8 animate-spin text-violet-500" /></div>
 }
 
 export function Empty({ icon: Icon, title, sub, action }) {
@@ -111,7 +111,7 @@ export function Empty({ icon: Icon, title, sub, action }) {
 }
 
 export function Stat({ icon: Icon, label, value, tone = 'baari', sub }) {
-  const bg = { baari: 'bg-baari', trust: 'bg-trust', dark: 'bg-ink', gold: 'bg-gradient-to-br from-amber-400 to-orange-500' }[tone]
+  const bg = { baari: 'bg-baari', trust: 'bg-trust', dark: 'bg-ink', gold: 'bg-gradient-to-br from-amber-400 to-amber-500' }[tone]
   return (
     <div className="card flex items-center gap-3 p-3.5 sm:gap-4 sm:p-5">
       {Icon && <div className={cx('grid h-10 w-10 shrink-0 sm:h-12 sm:w-12 place-items-center rounded-2xl text-white', bg)}><Icon className="h-6 w-6" /></div>}

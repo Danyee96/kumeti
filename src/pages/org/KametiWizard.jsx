@@ -97,7 +97,7 @@ export default function KametiWizard() {
       <div className="mb-5">
         <div className="mb-2 flex items-center justify-between text-sm font-bold text-fg/50">
           <span>{t('stepOf', { s: step + 1, t: steps.length })}</span>
-          {f.type && <span className="flex items-center gap-1.5 text-fg">{(() => { const I = TYPES[f.type].icon; return <I className="h-4 w-4 text-fuchsia-500" /> })()}{t(`type_${f.type}`)}</span>}
+          {f.type && <span className="flex items-center gap-1.5 text-fg">{(() => { const I = TYPES[f.type].icon; return <I className="h-4 w-4 text-violet-500" /> })()}{t(`type_${f.type}`)}</span>}
         </div>
         <div className="flex gap-1.5">{steps.map((s, i) => <div key={s} className={cx('h-2 flex-1 rounded-full transition', i <= step ? 'bg-baari' : 'bg-violet-100')} />)}</div>
       </div>
@@ -163,11 +163,11 @@ function TypeStep({ value, onPick }) {
           const T = TYPES[k]
           return (
             <button key={k} onClick={() => onPick(k)}
-              className={cx('card flex items-center gap-4 p-4 text-start transition active:scale-[.98] sm:p-5', value === k && 'ring-4 ring-fuchsia-300')}>
+              className={cx('card flex items-center gap-4 p-4 text-start transition active:scale-[.98] sm:p-5', value === k && 'ring-4 ring-violet-300')}>
               <div className={cx('grid h-16 w-16 shrink-0 place-items-center rounded-3xl bg-gradient-to-br text-white shadow-lg', T.grad)}><T.icon className="h-8 w-8" /></div>
               <div className="min-w-0 flex-1">
                 <div className="text-xl font-extrabold">{t(`type_${k}`)}</div>
-                <div className="text-sm font-bold text-fuchsia-600">{t(`type_${k}_ur`)}</div>
+                <div className="text-sm font-bold text-violet-600">{t(`type_${k}_ur`)}</div>
                 <p className="mt-0.5 text-sm text-fg/60">{t(`type_${k}_desc`)}</p>
               </div>
               <ChevronRight className="h-6 w-6 shrink-0 text-violet-300 flip-rtl" />
@@ -208,7 +208,7 @@ function WhenStep({ f, set }) {
           </div>
           <Field label={t('howManyTurns')}><BigStepper value={f.slots} min={2} onChange={(v) => set('slots', v)} display={`${f.slots} ${unit}`} /></Field>
           <div className="flex items-center gap-3 rounded-2xl bg-ink p-4 text-white">
-            <CalendarRange className="h-6 w-6 shrink-0 text-pink-400" />
+            <CalendarRange className="h-6 w-6 shrink-0 text-violet-400" />
             <div className="text-sm font-bold">{monthName(`${f.startMonth}-01`, lang)} → {monthName(`${endMonth}-01`, lang)}<div className="text-white/60">{t('turnsEqual', { n: f.slots })}</div></div>
           </div>
         </Card>
@@ -256,7 +256,7 @@ function AmountStep({ f, set, setCfg, editing }) {
       </div>
 
       <button onClick={() => setMore(!more)} className="flex w-full items-center justify-between rounded-2xl bg-surface px-4 py-4 font-bold">
-        <span className="flex items-center gap-2"><SlidersHorizontal className="h-5 w-5 text-fuchsia-500" />{t('moreSettings')}</span>
+        <span className="flex items-center gap-2"><SlidersHorizontal className="h-5 w-5 text-violet-500" />{t('moreSettings')}</span>
         <ChevronRight className={cx('h-5 w-5 transition', more ? 'rotate-90' : 'flip-rtl')} />
       </button>
       {more && (

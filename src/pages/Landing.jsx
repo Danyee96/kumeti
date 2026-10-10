@@ -82,7 +82,7 @@ export default function Landing({ previewData }) {
       {data.hero.show && (
         <section className="mesh-flip relative min-h-screen pt-32 lg:pt-36">
           <div className="grid-flip pointer-events-none absolute inset-0 [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_75%)]" />
-          <div className="pointer-events-none absolute -top-40 start-1/2 h-[600px] w-[600px] -translate-x-1/2 rounded-full bg-fuchsia-600/10 blur-[120px] dark:bg-fuchsia-600/20" />
+          <div className="pointer-events-none absolute -top-40 start-1/2 h-[600px] w-[600px] -translate-x-1/2 rounded-full bg-violet-600/10 blur-[120px] dark:bg-violet-600/20" />
           <div className="relative mx-auto grid max-w-7xl items-center gap-14 px-5 pb-24 lg:grid-cols-[1.1fr_.9fr] lg:px-8">
             <div className="text-center lg:text-start">
               <span className="glass-flip inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-fg/90 animate-pop">
@@ -90,7 +90,7 @@ export default function Landing({ previewData }) {
               </span>
               <h1 className={cx('mt-7 font-extrabold tracking-tight', lang === 'ur' ? 'text-5xl leading-[1.6] sm:text-6xl' : 'text-5xl leading-[1.02] sm:text-7xl xl:text-[5.5rem]')}>
                 {pick(data.hero.title)}{' '}
-                <span className="text-gradient animate-shine bg-[length:200%_auto]" style={{ backgroundImage: 'linear-gradient(90deg,#A78BFA,#EC4899,#F97316,#EC4899,#A78BFA)' }}>
+                <span className="text-gradient animate-shine bg-[length:200%_auto]" style={{ backgroundImage: 'linear-gradient(90deg,#8576F2,#6C5CE7,#4F40C4,#6C5CE7,#8576F2)' }}>
                   {pick(data.hero.highlight)}
                 </span>
               </h1>
@@ -107,7 +107,7 @@ export default function Landing({ previewData }) {
               <div className="mt-10 flex items-center justify-center gap-4 lg:justify-start">
                 <div className="flex -space-x-3 rtl:space-x-reverse">
                   {['AK', 'SP', 'HR', 'FN', 'UA'].map((s, i) => (
-                    <div key={s} className={cx('grid h-10 w-10 place-items-center rounded-full border-2 border-lilac bg-gradient-to-br text-xs font-bold text-white', ['from-violet-500 to-fuchsia-500', 'from-pink-500 to-orange-400', 'from-cyan-500 to-emerald-500', 'from-amber-400 to-orange-500', 'from-indigo-500 to-violet-500'][i])}>{s}</div>
+                    <div key={s} className={cx('grid h-10 w-10 place-items-center rounded-full border-2 border-lilac bg-gradient-to-br text-xs font-bold text-white', ['from-violet-400 to-violet-600', 'from-indigo-400 to-indigo-600', 'from-emerald-400 to-emerald-500', 'from-amber-400 to-amber-500', 'from-indigo-400 to-indigo-600'][i])}>{s}</div>
                   ))}
                 </div>
                 <div className="text-start text-sm">
@@ -161,8 +161,8 @@ export default function Landing({ previewData }) {
               {data.features.items.map((f, i) => {
                 const Icon = ICONS[f.icon] || Sparkles
                 return (
-                  <div key={i} className="group relative overflow-hidden rounded-[2rem] border border-line bg-surface p-7 shadow-soft transition duration-300 hover:-translate-y-1 hover:border-fuchsia-400/40">
-                    <div className="pointer-events-none absolute -end-16 -top-16 h-40 w-40 rounded-full bg-fuchsia-500/0 blur-3xl transition group-hover:bg-fuchsia-500/30" />
+                  <div key={i} className="group relative overflow-hidden rounded-[2rem] border border-line bg-surface p-7 shadow-soft transition duration-300 hover:-translate-y-1 hover:border-violet-400/40">
+                    <div className="pointer-events-none absolute -end-16 -top-16 h-40 w-40 rounded-full bg-violet-500/0 blur-3xl transition group-hover:bg-violet-500/30" />
                     <div className={cx('grid h-14 w-14 place-items-center rounded-2xl text-white', i % 2 ? 'bg-trust' : 'bg-baari')}><Icon className="h-7 w-7" /></div>
                     <h3 className="mt-6 text-xl font-bold">{pick(f.title)}</h3>
                     <p className="mt-2 text-fg/60">{pick(f.desc)}</p>
@@ -177,7 +177,7 @@ export default function Landing({ previewData }) {
       {/* ================= TYPES ================= */}
       {data.types.show && (
         <section id="types" className="relative px-5 py-20">
-          <div className="pointer-events-none absolute inset-x-0 top-1/2 h-96 -translate-y-1/2 bg-gradient-to-r from-violet-700/10 via-pink-600/10 to-orange-500/10 blur-[100px] dark:from-violet-700/20 dark:via-pink-600/20 dark:to-orange-500/20" />
+          <div className="pointer-events-none absolute inset-x-0 top-1/2 h-96 -translate-y-1/2 bg-gradient-to-r from-violet-700/10 via-indigo-600/10 to-violet-500/10 blur-[100px] dark:from-violet-700/20 dark:via-indigo-600/20 dark:to-violet-500/20" />
           <div className="relative mx-auto max-w-7xl">
             <SectionHead title={pick(data.types.title)} sub={pick(data.types.subtitle)} />
             <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
@@ -187,7 +187,7 @@ export default function Landing({ previewData }) {
                   <div key={k} className="rounded-[2rem] border border-line bg-surface/80 p-6 shadow-soft backdrop-blur transition hover:-translate-y-1">
                     <div className={cx('grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br text-white', T.grad)}><T.icon className="h-7 w-7" /></div>
                     <h3 className="mt-5 text-lg font-bold">{t(`type_${k}`)}</h3>
-                    <div className="text-sm font-semibold text-pink-600">{t(`type_${k}_ur`)}</div>
+                    <div className="text-sm font-semibold text-violet-600">{t(`type_${k}_ur`)}</div>
                     <p className="mt-3 text-sm text-fg/60">{t(`type_${k}_desc`)}</p>
                   </div>
                 )
@@ -206,10 +206,10 @@ export default function Landing({ previewData }) {
           <div className="mx-auto max-w-6xl">
             <SectionHead title={pick(data.steps.title)} />
             <div className="relative mt-14 grid gap-6 md:grid-cols-4">
-              <div className="absolute inset-x-[12%] top-8 hidden h-0.5 bg-gradient-to-r from-violet-500 via-pink-500 to-orange-500 md:block" />
+              <div className="absolute inset-x-[12%] top-8 hidden h-0.5 bg-gradient-to-r from-violet-500 via-indigo-500 to-violet-500 md:block" />
               {data.steps.items.map((s, i) => (
                 <div key={i} className="relative text-center">
-                  <div className="num relative mx-auto grid h-16 w-16 place-items-center rounded-full bg-surface text-2xl font-bold ring-4 ring-fuchsia-500/60">
+                  <div className="num relative mx-auto grid h-16 w-16 place-items-center rounded-full bg-surface text-2xl font-bold ring-4 ring-violet-500/60">
                     <span className="text-gradient">{i + 1}</span>
                   </div>
                   <h3 className="mt-5 text-lg font-bold">{pick(s.title)}</h3>
@@ -230,7 +230,7 @@ export default function Landing({ previewData }) {
               {data.testimonials.items.map((q, i) => (
                 <figure key={i} className={cx('relative rounded-[2rem] p-[1.5px]', i === 1 ? 'bg-baari md:-translate-y-4' : 'bg-fg/10')}>
                   <div className="h-full rounded-[calc(2rem-1.5px)] bg-surface p-7">
-                    <Quote className="h-8 w-8 text-pink-400" />
+                    <Quote className="h-8 w-8 text-violet-400" />
                     <blockquote className="mt-4 text-lg text-fg/85">{pick(q.quote)}</blockquote>
                     <figcaption className="mt-6 flex items-center gap-3">
                       <div className="grid h-11 w-11 place-items-center rounded-full bg-baari text-sm font-bold text-white">{q.name.split(' ').map((w) => w[0]).join('').slice(0, 2)}</div>
@@ -279,9 +279,9 @@ export default function Landing({ previewData }) {
             <p className="mt-4 text-fg/60">{pick(data.footer.about)}</p>
           </div>
           <div className="space-y-3 text-fg/70">
-            {data.footer.phone && <div className="flex items-center gap-3"><Phone className="h-4 w-4 text-pink-400" /><span dir="ltr">{data.footer.phone}</span></div>}
-            {data.footer.email && <div className="flex items-center gap-3"><Mail className="h-4 w-4 text-pink-400" />{data.footer.email}</div>}
-            {pick(data.footer.address) && <div className="flex items-center gap-3"><MapPin className="h-4 w-4 text-pink-400" />{pick(data.footer.address)}</div>}
+            {data.footer.phone && <div className="flex items-center gap-3"><Phone className="h-4 w-4 text-violet-400" /><span dir="ltr">{data.footer.phone}</span></div>}
+            {data.footer.email && <div className="flex items-center gap-3"><Mail className="h-4 w-4 text-violet-400" />{data.footer.email}</div>}
+            {pick(data.footer.address) && <div className="flex items-center gap-3"><MapPin className="h-4 w-4 text-violet-400" />{pick(data.footer.address)}</div>}
           </div>
         </div>
         <div className="mx-auto mt-10 max-w-7xl text-sm text-fg/40">© {new Date().getFullYear()} {site.name || 'Kumeti'}</div>
@@ -309,7 +309,7 @@ function SectionHead({ title, sub }) {
 function Faq({ q, a, open: initial }) {
   const [open, setOpen] = useState(initial)
   return (
-    <div className={cx('rounded-3xl border transition', open ? 'border-fuchsia-400/40 bg-surface shadow-soft' : 'border-line bg-surface/60')}>
+    <div className={cx('rounded-3xl border transition', open ? 'border-violet-400/40 bg-surface shadow-soft' : 'border-line bg-surface/60')}>
       <button onClick={() => setOpen(!open)} className="flex w-full items-center justify-between gap-4 p-5 text-start text-lg font-bold">
         {q}<ChevronDown className={cx('h-5 w-5 shrink-0 transition', open && 'rotate-180')} />
       </button>
@@ -324,8 +324,8 @@ function HeroPhone() {
   const people = [['Ayesha Khan', 1, true], ['Fatima Noor', 2, true], ['Bilal Ahmed', 3, false], ['Sana Iqbal', 4, false]]
   return (
     <div className="relative mx-auto w-full max-w-[360px] animate-float" dir="ltr">
-      <div className="absolute -inset-10 rounded-full bg-gradient-to-tr from-violet-600/40 via-pink-500/30 to-orange-400/30 blur-3xl" />
-      <div className="relative rounded-[3rem] border border-white/15 bg-ink-2 p-3 shadow-[0_40px_120px_-20px_rgba(124,58,237,.6)]">
+      <div className="absolute -inset-10 rounded-full bg-gradient-to-tr from-violet-500/30 via-indigo-400/25 to-violet-400/30 blur-3xl" />
+      <div className="relative rounded-[3rem] border border-white/15 bg-ink-2 p-3 shadow-[0_40px_120px_-20px_rgba(108,92,231,.6)]">
         <div className="overflow-hidden rounded-[2.4rem] bg-lilac text-fg">
           <div className="flex items-center justify-between px-6 pb-2 pt-4 text-xs font-bold"><span>9:41</span><span className="h-5 w-20 rounded-full bg-ink" /><span>100%</span></div>
           <div className="px-5 pb-6">
@@ -374,15 +374,15 @@ function MiniCalculator() {
     <section className="px-5 py-20">
       <div className="mx-auto grid max-w-6xl items-center gap-8 overflow-hidden rounded-[2.5rem] border border-line bg-surface p-6 shadow-soft sm:p-10 lg:grid-cols-2">
         <div>
-          <span className="chip bg-pink-100 text-pink-700"><Calculator className="h-3.5 w-3.5" />{t('calcTitle')}</span>
+          <span className="chip bg-violet-100 text-violet-700"><Calculator className="h-3.5 w-3.5" />{t('calcTitle')}</span>
           <div className="mt-6 space-y-7">
             <div>
               <div className="mb-2 flex justify-between font-semibold"><span>{t('amountPerRound')}</span><span className="num text-gradient">{money(amount)}</span></div>
-              <input type="range" min="1000" max="100000" step="1000" value={amount} onChange={(e) => setAmount(+e.target.value)} className="w-full accent-pink-500" />
+              <input type="range" min="1000" max="100000" step="1000" value={amount} onChange={(e) => setAmount(+e.target.value)} className="w-full accent-violet-500" />
             </div>
             <div>
               <div className="mb-2 flex justify-between font-semibold"><span>{t('howManyMembers')}</span><span className="num text-gradient">{members}</span></div>
-              <input type="range" min="2" max="30" value={members} onChange={(e) => setMembers(+e.target.value)} className="w-full accent-pink-500" />
+              <input type="range" min="2" max="30" value={members} onChange={(e) => setMembers(+e.target.value)} className="w-full accent-violet-500" />
             </div>
           </div>
         </div>

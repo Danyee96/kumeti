@@ -11,7 +11,7 @@ export function LogoMark({ size = 36, spin = false, className = '' }) {
     <svg width={size} height={size} viewBox="0 0 64 64" className={className} aria-hidden="true">
       <defs>
         <linearGradient id={`g${id}`} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#7C3AED" /><stop offset=".55" stopColor="#EC4899" /><stop offset="1" stopColor="#F97316" />
+          <stop offset="0" stopColor="#A99BF8" /><stop offset=".55" stopColor="#8576F2" /><stop offset="1" stopColor="#6C5CE7" />
         </linearGradient>
       </defs>
       <rect width="64" height="64" rx="18" fill="#0F0A1F" /><rect x=".75" y=".75" width="62.5" height="62.5" rx="17.25" fill="none" stroke="#fff" strokeOpacity=".14" strokeWidth="1.5" />

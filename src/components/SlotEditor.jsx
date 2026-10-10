@@ -37,7 +37,7 @@ export default function SlotEditor({ groups, people, label, locked = () => false
         const isLocked = locked(g.slot_no)
         const mine = highlight && g.holders.some((h) => h.id === highlight)
         return (
-          <div key={g.slot_no} className={cx('card overflow-hidden p-0', bad && 'ring-2 ring-amber-300', mine && 'ring-2 ring-fuchsia-400')}>
+          <div key={g.slot_no} className={cx('card overflow-hidden p-0', bad && 'ring-2 ring-amber-300', mine && 'ring-2 ring-violet-400')}>
             <div className="flex items-stretch">
               <div className={cx('num flex w-16 shrink-0 flex-col items-center justify-center text-white sm:w-20', isLocked ? 'bg-trust' : 'bg-baari')}>
                 <span className="text-[10px] font-bold uppercase opacity-80">{t('number')}</span>
@@ -64,7 +64,7 @@ export default function SlotEditor({ groups, people, label, locked = () => false
               {!readOnly && !isLocked && (
                 <div className="flex shrink-0 flex-col border-s border-violet-50">
                   <button onClick={() => move(i, -1)} disabled={i === 0} className="grid flex-1 place-items-center px-3 text-violet-600 disabled:opacity-25" aria-label={t('moveUp')}><ArrowUp className="h-5 w-5" /></button>
-                  <button onClick={() => setSplit({ slot_no: g.slot_no, holders: g.holders.length ? g.holders.map((h) => ({ ...h })) : [{ id: '', portion: 1 }] })} className="grid flex-1 place-items-center border-y border-violet-50 px-3 text-fuchsia-600" aria-label={t('split')}><Scissors className="h-5 w-5" /></button>
+                  <button onClick={() => setSplit({ slot_no: g.slot_no, holders: g.holders.length ? g.holders.map((h) => ({ ...h })) : [{ id: '', portion: 1 }] })} className="grid flex-1 place-items-center border-y border-violet-50 px-3 text-violet-600" aria-label={t('split')}><Scissors className="h-5 w-5" /></button>
                   <button onClick={() => move(i, 1)} disabled={i === groups.length - 1} className="grid flex-1 place-items-center px-3 text-violet-600 disabled:opacity-25" aria-label={t('moveDown')}><ArrowDown className="h-5 w-5" /></button>
                 </div>
               )}

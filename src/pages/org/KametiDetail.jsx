@@ -28,7 +28,7 @@ export default function KametiDetail() {
 
   const load = useCallback(() => api('kametis/get', { id }).then(setD).catch((x) => { toast(err(x.code), 'err'); nav(-1) }), [id]) // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { load() }, [load])
-  useEffect(() => { if (isNew) confetti({ particleCount: 140, spread: 90, origin: { y: 0.5 }, colors: ['#7C3AED', '#EC4899', '#F97316', '#FBBF24'] }) }, [isNew])
+  useEffect(() => { if (isNew) confetti({ particleCount: 140, spread: 90, origin: { y: 0.5 }, colors: ['#A99BF8', '#8576F2', '#6C5CE7', '#FBBF24'] }) }, [isNew])
 
   const c = useMemo(() => (d ? calc(d.kameti, d.members, d.payments, d.payouts, d.slots) : null), [d])
   if (!d) return <Spinner />
@@ -113,7 +113,7 @@ export default function KametiDetail() {
         <div className="grid grid-cols-3 gap-2 sm:flex">
           {tabs.map(([key, label, Icon]) => (
             <button key={key} onClick={() => setTab(key)}
-              className={cx('flex flex-col items-center justify-center gap-1 rounded-2xl px-2 py-2.5 text-xs font-bold transition sm:flex-row sm:gap-2 sm:px-4 sm:text-sm', tab === key ? 'bg-ink text-white shadow-soft' : key === 'share' ? 'bg-surface text-fuchsia-600' : 'bg-surface text-fg/60')}>
+              className={cx('flex flex-col items-center justify-center gap-1 rounded-2xl px-2 py-2.5 text-xs font-bold transition sm:flex-row sm:gap-2 sm:px-4 sm:text-sm', tab === key ? 'bg-ink text-white shadow-soft' : key === 'share' ? 'bg-surface text-violet-600' : 'bg-surface text-fg/60')}>
               <Icon className="h-5 w-5" />{label}
             </button>
           ))}
@@ -186,7 +186,7 @@ function NumbersTab({ d, c, canEdit, run, me, everyRound }) {
     const iv = setInterval(() => setAnim({ name: names[Math.floor(Math.random() * names.length)], num: 1 + Math.floor(Math.random() * c.slots) }), 80)
     setTimeout(async () => { clearInterval(iv); try { resolve(await fn()) } catch (e) { reject(e) } finally { setAnim(null) } }, 1600)
   })
-  const boom = () => confetti({ particleCount: 160, spread: 90, origin: { y: 0.6 }, colors: ['#7C3AED', '#EC4899', '#F97316', '#FBBF24', '#10B981'] })
+  const boom = () => confetti({ particleCount: 160, spread: 90, origin: { y: 0.6 }, colors: ['#A99BF8', '#8576F2', '#6C5CE7', '#FBBF24', '#10B981'] })
 
   const save = async () => {
     setSaving(true)
@@ -232,7 +232,7 @@ function NumbersTab({ d, c, canEdit, run, me, everyRound }) {
       <Modal open={!!winner} onClose={() => setWinner(null)} title={t('winnerIs')}>
         {winner && (
           <div className="text-center">
-            <div className="mx-auto grid h-20 w-20 place-items-center rounded-full bg-gradient-to-br from-amber-400 to-orange-500 text-white"><Trophy className="h-10 w-10" /></div>
+            <div className="mx-auto grid h-20 w-20 place-items-center rounded-full bg-gradient-to-br from-amber-400 to-amber-500 text-white"><Trophy className="h-10 w-10" /></div>
             <div className="mt-4 text-3xl font-extrabold">{winner.names.join(' + ')}</div>
             <div className="mt-1 text-fg/60">{t('number')} {winner.round} · {roundLabel(k, winner.round, lang)}</div>
             <Button className="mt-6 w-full" size="lg" onClick={() => setWinner(null)}>{t('close')}</Button>
@@ -263,7 +263,7 @@ function ShareTab({ d, c, canEdit, me }) {
   return (
     <div className="space-y-3">
       <div className="mesh overflow-hidden rounded-[2rem] p-5 text-white">
-        <div className="flex items-center gap-2 text-lg font-extrabold"><ImageIcon className="h-6 w-6 text-pink-300" />{t('exportTitle')}</div>
+        <div className="flex items-center gap-2 text-lg font-extrabold"><ImageIcon className="h-6 w-6 text-violet-300" />{t('exportTitle')}</div>
         <p className="mt-1 text-white/70">{t('exportSub')}</p>
       </div>
 
@@ -274,7 +274,7 @@ function ShareTab({ d, c, canEdit, me }) {
           <div className="text-lg font-extrabold">{t('fullChart')}</div>
           <div className="text-sm text-fg/60">{t('fullChartSub')}</div>
         </div>
-        <Share2 className="h-6 w-6 shrink-0 text-fuchsia-500" />
+        <Share2 className="h-6 w-6 shrink-0 text-violet-500" />
       </button>
 
       <div className="pt-2 text-sm font-bold uppercase tracking-wide text-fg/50">{t('memberCard')}</div>
@@ -341,7 +341,7 @@ function PaymentsTab({ d, c, canEdit, run }) {
           return (
             <button key={x} onClick={() => setR(x)} className={cx('num flex h-14 min-w-[3.5rem] shrink-0 flex-col items-center justify-center rounded-2xl px-2 font-bold transition', x === r ? 'bg-ink text-white' : full ? 'bg-emerald-100 text-emerald-700' : x <= c.cur ? 'bg-surface text-fg' : 'bg-surface/60 text-fg/40')}>
               <span className="text-lg leading-none">{x}</span>
-              {x === c.cur && <span className="mt-1 h-1.5 w-1.5 rounded-full bg-fuchsia-500" />}
+              {x === c.cur && <span className="mt-1 h-1.5 w-1.5 rounded-full bg-violet-500" />}
             </button>
           )
         })}
@@ -441,7 +441,7 @@ function PayoutsTab({ d, c, canEdit, run }) {
                 <div className="text-xs font-semibold text-fg/50">{roundLabel(k, r, lang)}</div>
                 <div className="truncate font-extrabold">{holdersText(r)}</div>
                 {n(p?.bid_amount) > 0 && <div className="text-xs font-bold text-amber-600">{t('bidAmount')}: {money(p.bid_amount)}</div>}
-                {p?.note && p.note !== 'draw' && <div className="truncate text-xs font-bold text-pink-600">{p.note}</div>}
+                {p?.note && p.note !== 'draw' && <div className="truncate text-xs font-bold text-violet-600">{p.note}</div>}
               </div>
               <div className="num text-end font-bold">{money(c.payoutFor(r))}{given && <div><Badge tone="green"><Check className="h-3 w-3" />{t('given')}</Badge></div>}</div>
             </div>
@@ -513,7 +513,7 @@ function MembersTab({ d, c, canEdit, run, me }) {
         {d.members.map((m) => {
           const nums = c.numbersOf(m.id)
           return (
-            <Card key={m.id} className={cx('p-4', me?.id === m.id && 'ring-2 ring-fuchsia-300')}>
+            <Card key={m.id} className={cx('p-4', me?.id === m.id && 'ring-2 ring-violet-300')}>
               <div className="flex items-center gap-3">
                 <Avatar name={m.name} id={m.id} size="lg" />
                 <div className="min-w-0 flex-1">

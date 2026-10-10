@@ -30,7 +30,7 @@ export default function OrgDashboard() {
         <div className="grid-bg pointer-events-none absolute inset-0 opacity-50" />
         <LogoMark size={170} spin className="pointer-events-none absolute -bottom-10 -end-10 opacity-30" />
         <div className="relative flex items-center gap-5">
-          <div className="grid h-20 w-20 shrink-0 place-items-center rounded-[1.6rem] bg-white text-fuchsia-600 shadow-xl"><Plus className="h-11 w-11" strokeWidth={3} /></div>
+          <div className="grid h-20 w-20 shrink-0 place-items-center rounded-[1.6rem] bg-white text-violet-600 shadow-xl"><Plus className="h-11 w-11" strokeWidth={3} /></div>
           <div className="min-w-0 flex-1">
             <div className="text-2xl font-extrabold sm:text-3xl">{t('newKametiBig')}</div>
             <div className="mt-1 text-white/85">{t('newKametiBigSub')}</div>
@@ -52,7 +52,7 @@ export default function OrgDashboard() {
         <div>
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-xl font-extrabold">{t('myKametis')}</h2>
-            <Link to="/org/kametis" className="text-sm font-bold text-fuchsia-600">{t('all')}</Link>
+            <Link to="/org/kametis" className="text-sm font-bold text-violet-600">{t('all')}</Link>
           </div>
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">{list.slice(0, 6).map((k) => <KametiCard key={k.id} k={k} />)}</div>
         </div>

@@ -16,15 +16,14 @@ export default {
         fg: v('fg'),
         line: 'var(--line)',
         soft: 'var(--soft)',
-        violet: { brand: '#7C3AED', ...shades('violet', [50, 100, 200, 700]) },
+        violet: { brand: '#7C6CF0', 300: '#C9BFFC', 400: '#A99BF8', 500: '#8576F2', ...shades('violet', [50, 100, 200, 600, 700]) },
         emerald: shades('emerald', [50, 100, 600, 700]),
         red: shades('red', [50, 100, 600]),
         amber: shades('amber', [50, 100, 600, 700]),
         pink: shades('pink', [50, 100, 600, 700]),
         cyan: shades('cyan', [100, 700]),
         gray: shades('gray', [50, 100, 300, 500, 600]),
-        fuchsia: shades('fuchsia', [600]),
-        glow: { pink: '#EC4899', orange: '#F97316', cyan: '#06B6D4', emerald: '#10B981', gold: '#FBBF24' },
+        glow: { pink: '#8576F2', orange: '#6C5CE7', cyan: '#06B6D4', emerald: '#10B981', gold: '#FBBF24' },
       },
       fontFamily: {
         sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
@@ -32,11 +31,11 @@ export default {
         urdu: ['"Noto Nastaliq Urdu"', '"Plus Jakarta Sans"', 'serif'],
       },
       backgroundImage: {
-        baari: 'linear-gradient(120deg,#7C3AED 0%,#EC4899 55%,#F97316 100%)',
-        trust: 'linear-gradient(120deg,#06B6D4 0%,#10B981 100%)',
+        baari: 'linear-gradient(135deg,#A99BF8 0%,#8576F2 50%,#6C5CE7 100%)',
+        trust: 'linear-gradient(135deg,#34D399 0%,#10B981 100%)',
       },
       boxShadow: {
-        glow: '0 20px 60px -15px rgba(236,72,153,.55)',
+        glow: '0 18px 50px -14px rgba(108,92,231,.55)',
         soft: '0 10px 40px -12px var(--shadow)',
       },
       keyframes: {

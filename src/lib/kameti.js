@@ -2,10 +2,10 @@
 import { ListOrdered, Dices, Gavel, HeartHandshake } from 'lucide-react'
 
 export const TYPES = {
-  fixed: { icon: ListOrdered, grad: 'from-violet-500 to-fuchsia-500' },
-  qurandazi: { icon: Dices, grad: 'from-pink-500 to-orange-400' },
-  boli: { icon: Gavel, grad: 'from-amber-400 to-orange-500' },
-  zaroorat: { icon: HeartHandshake, grad: 'from-rose-500 to-pink-500' },
+  fixed: { icon: ListOrdered, grad: 'from-violet-400 to-violet-600' },
+  qurandazi: { icon: Dices, grad: 'from-indigo-400 to-indigo-600' },
+  boli: { icon: Gavel, grad: 'from-amber-400 to-amber-500' },
+  zaroorat: { icon: HeartHandshake, grad: 'from-purple-400 to-purple-600' },
 }
 export const TYPE_KEYS = Object.keys(TYPES)
 
@@ -194,7 +194,7 @@ export function initials(name = '') {
   return name.trim().split(/\s+/).slice(0, 2).map((w) => w[0]).join('').toUpperCase() || '?'
 }
 
-const AVATAR = ['from-violet-500 to-fuchsia-500', 'from-pink-500 to-orange-400', 'from-cyan-500 to-emerald-500', 'from-amber-400 to-orange-500', 'from-indigo-500 to-violet-500', 'from-rose-500 to-pink-500', 'from-emerald-500 to-teal-500']
+const AVATAR = ['from-violet-400 to-violet-600', 'from-indigo-400 to-indigo-600', 'from-emerald-400 to-emerald-500', 'from-amber-400 to-amber-500', 'from-indigo-400 to-indigo-600', 'from-purple-400 to-purple-600', 'from-teal-400 to-teal-600']
 export const avatarGrad = (id) => AVATAR[n(id) % AVATAR.length]
 
 export function waLink(phone, text) {

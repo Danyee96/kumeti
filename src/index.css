@@ -5,31 +5,29 @@
 /* ---------- Theme tokens (RGB triplets so Tailwind opacity modifiers work) ---------- */
 :root {
   color-scheme: light;
-  --lilac: 245 243 255; --surface: 255 255 255; --fg: 15 10 31; --ink: 15 10 31;
-  --line: rgba(124, 58, 237, .14); --soft: rgba(255, 255, 255, .75); --shadow: rgba(15, 10, 31, .18);
-  --grid: rgba(124, 58, 237, .07);
-  --violet-50: 245 243 255; --violet-100: 237 233 254; --violet-200: 221 214 254; --violet-700: 109 40 217;
+  --lilac: 243 242 252; --surface: 255 255 255; --fg: 15 10 31; --ink: 15 10 31;
+  --line: rgba(108, 92, 231, .14); --soft: rgba(255, 255, 255, .75); --shadow: rgba(15, 10, 31, .18);
+  --grid: rgba(108, 92, 231, .07);
+  --violet-50: 243 241 254; --violet-100: 234 231 253; --violet-200: 214 209 251; --violet-600: 108 92 231; --violet-700: 84 70 200;
   --emerald-50: 236 253 245; --emerald-100: 209 250 229; --emerald-600: 5 150 105; --emerald-700: 4 120 87;
   --red-50: 254 242 242; --red-100: 254 226 226; --red-600: 220 38 38;
   --amber-50: 255 251 235; --amber-100: 254 243 199; --amber-600: 217 119 6; --amber-700: 180 83 9;
   --pink-50: 253 242 248; --pink-100: 252 231 243; --pink-600: 219 39 119; --pink-700: 190 24 93;
   --cyan-100: 207 250 254; --cyan-700: 14 116 144;
   --gray-50: 249 250 251; --gray-100: 243 244 246; --gray-300: 209 213 219; --gray-500: 107 114 128; --gray-600: 75 85 99;
-  --fuchsia-600: 192 38 211;
 }
 html.dark {
   color-scheme: dark;
   --lilac: 11 7 22; --surface: 26 19 48; --fg: 245 243 255; --ink: 44 34 84;
   --line: rgba(255, 255, 255, .10); --soft: rgba(255, 255, 255, .04); --shadow: rgba(0, 0, 0, .55);
   --grid: rgba(255, 255, 255, .05);
-  --violet-50: 36 27 68; --violet-100: 48 36 92; --violet-200: 66 52 120; --violet-700: 196 181 253;
+  --violet-50: 36 30 74; --violet-100: 48 40 100; --violet-200: 68 58 132; --violet-600: 169 155 248; --violet-700: 201 191 252;
   --emerald-50: 9 44 35; --emerald-100: 12 68 52; --emerald-600: 52 211 153; --emerald-700: 110 231 183;
   --red-50: 58 17 27; --red-100: 82 24 36; --red-600: 248 113 113;
   --amber-50: 54 38 9; --amber-100: 77 55 12; --amber-600: 251 191 36; --amber-700: 252 211 77;
   --pink-50: 60 20 40; --pink-100: 80 24 52; --pink-600: 244 114 182; --pink-700: 249 168 212;
   --cyan-100: 13 58 70; --cyan-700: 103 232 249;
   --gray-50: 30 24 50; --gray-100: 40 32 64; --gray-300: 90 80 120; --gray-500: 160 150 190; --gray-600: 190 180 220;
-  --fuchsia-600: 232 121 249;
 }
 
 @layer base {
@@ -37,42 +35,48 @@ html.dark {
   body { @apply bg-lilac text-fg font-sans antialiased transition-colors duration-300; }
   html.urdu body, html.urdu input, html.urdu textarea, html.urdu select, html.urdu button { font-family: 'Noto Nastaliq Urdu', 'Plus Jakarta Sans', serif; line-height: 2.1; }
   html.urdu .font-num, html.urdu .num { font-family: 'Space Grotesk', 'Plus Jakarta Sans', sans-serif; line-height: 1.3; }
-  ::selection { background: #EC4899; color: #fff; }
+  ::selection { background: #8576F2; color: #fff; }
   ::placeholder { color: rgb(var(--fg) / .35); }
 }
 
 @layer components {
-  .text-gradient { @apply bg-baari bg-clip-text text-transparent; background-size: 200% auto; }
+  .text-gradient { @apply bg-clip-text text-transparent; background-image: linear-gradient(135deg,#8576F2 0%,#6C5CE7 60%,#5443D2 100%); background-size: 200% auto; }
+  html.dark .text-gradient { background-image: linear-gradient(135deg,#C9BFFC 0%,#A99BF8 60%,#8576F2 100%); }
   .card { @apply bg-surface rounded-3xl border border-line shadow-soft; }
   .glass { @apply bg-white/10 backdrop-blur-xl border border-white/15; }
   /* glass that follows the theme (landing page) */
   .glass-flip { @apply backdrop-blur-xl border border-line; background: var(--soft); }
-  .input { @apply w-full rounded-2xl border border-violet-200 bg-surface text-fg px-4 py-3 text-base outline-none transition focus:border-fuchsia-400 focus:ring-4 focus:ring-fuchsia-400/20; }
+  .input { @apply w-full rounded-2xl border border-violet-200 bg-surface text-fg px-4 py-3 text-base outline-none transition focus:border-violet-400 focus:ring-4 focus:ring-violet-400/20; }
   .label { @apply block text-sm font-semibold text-fg/70 mb-1.5; }
   .chip { @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold; }
   .num { @apply font-num tabular-nums; }
-  /* always-dark brand mesh (panels with white text) */
+  /* brand panel — one colour, light lavender to deep violet (white text sits on it) */
   .mesh {
     background:
-      radial-gradient(60% 50% at 15% 10%, rgba(124,58,237,.55), transparent 60%),
-      radial-gradient(50% 50% at 90% 20%, rgba(236,72,153,.45), transparent 60%),
-      radial-gradient(60% 60% at 70% 100%, rgba(249,115,22,.35), transparent 60%),
-      #0F0A1F;
+      radial-gradient(70% 60% at 0% 0%, rgba(255,255,255,.28), transparent 60%),
+      radial-gradient(60% 70% at 100% 100%, rgba(72,56,190,.35), transparent 60%),
+      linear-gradient(135deg, #A99BF8 0%, #8576F2 50%, #6C5CE7 100%);
   }
-  /* theme-following mesh (landing hero) */
+  html.dark .mesh {
+    background:
+      radial-gradient(70% 60% at 0% 0%, rgba(255,255,255,.14), transparent 60%),
+      radial-gradient(60% 70% at 100% 100%, rgba(30,20,90,.45), transparent 60%),
+      linear-gradient(135deg, #8576F2 0%, #6C5CE7 50%, #4F40C4 100%);
+  }
+  /* theme-following hero background (landing) */
   .mesh-flip {
     background:
-      radial-gradient(60% 50% at 15% 10%, rgba(124,58,237,.30), transparent 60%),
-      radial-gradient(50% 50% at 90% 20%, rgba(236,72,153,.22), transparent 60%),
-      radial-gradient(60% 60% at 70% 100%, rgba(249,115,22,.18), transparent 60%),
+      radial-gradient(60% 50% at 15% 10%, rgba(169,155,248,.45), transparent 60%),
+      radial-gradient(50% 50% at 90% 20%, rgba(133,118,242,.28), transparent 60%),
+      radial-gradient(60% 60% at 70% 100%, rgba(108,92,231,.18), transparent 60%),
       rgb(var(--lilac));
   }
   html.dark .mesh-flip {
     background:
-      radial-gradient(60% 50% at 15% 10%, rgba(124,58,237,.55), transparent 60%),
-      radial-gradient(50% 50% at 90% 20%, rgba(236,72,153,.45), transparent 60%),
-      radial-gradient(60% 60% at 70% 100%, rgba(249,115,22,.35), transparent 60%),
-      #0F0A1F;
+      radial-gradient(60% 50% at 15% 10%, rgba(108,92,231,.45), transparent 60%),
+      radial-gradient(50% 50% at 90% 20%, rgba(133,118,242,.30), transparent 60%),
+      radial-gradient(60% 60% at 70% 100%, rgba(169,155,248,.15), transparent 60%),
+      rgb(var(--lilac));
   }
   .grid-bg {
     background-image: linear-gradient(rgba(255,255,255,.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.06) 1px, transparent 1px);

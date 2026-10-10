@@ -10,9 +10,9 @@ import { useAuth, homeFor } from '../lib/auth'
 import { useLang } from '../lib/i18n'
 
 const DEMO = [
-  ['superadmin', 'admin@kumeti.pk', 'admin123', Crown, 'from-amber-400 to-orange-500'],
-  ['organizer', 'organizer@kumeti.pk', 'organizer123', Briefcase, 'from-violet-500 to-fuchsia-500'],
-  ['member', 'member@kumeti.pk', 'member123', User, 'from-cyan-500 to-emerald-500'],
+  ['superadmin', 'admin@kumeti.pk', 'admin123', Crown, 'from-amber-400 to-amber-500'],
+  ['organizer', 'organizer@kumeti.pk', 'organizer123', Briefcase, 'from-violet-400 to-violet-600'],
+  ['member', 'member@kumeti.pk', 'member123', User, 'from-emerald-400 to-emerald-500'],
 ]
 
 export function AuthLayout({ children }) {
@@ -23,7 +23,7 @@ export function AuthLayout({ children }) {
         <div className="grid-bg pointer-events-none absolute inset-0 opacity-70" />
         <Link to="/" className="relative"><Logo light /></Link>
         <div className="relative">
-          <LogoMark size={120} spin className="mb-10 drop-shadow-[0_20px_60px_rgba(236,72,153,.6)]" />
+          <LogoMark size={120} spin className="mb-10 drop-shadow-[0_20px_60px_rgba(133,118,242,.6)]" />
           <h2 className="text-5xl font-extrabold leading-tight">{t('appTagline')}</h2>
           <p className="mt-4 max-w-md text-lg text-white/70">{t('type_qurandazi_desc')}</p>
         </div>
@@ -82,7 +82,7 @@ export default function Login() {
         <div className="grid grid-cols-3 gap-2.5">
           {DEMO.map(([role, e, p, Icon, grad]) => (
             <button key={role} type="button" onClick={() => { setEmail(e); setPassword(p); setPicked(role); setError('') }}
-              className={cx('flex flex-col items-center gap-2 rounded-3xl border-2 bg-surface p-3 transition active:scale-95', picked === role ? 'border-fuchsia-400 shadow-glow' : 'border-violet-100 hover:border-violet-200')}>
+              className={cx('flex flex-col items-center gap-2 rounded-3xl border-2 bg-surface p-3 transition active:scale-95', picked === role ? 'border-violet-400 shadow-glow' : 'border-violet-100 hover:border-violet-200')}>
               <span className={cx('grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br text-white', grad)}><Icon className="h-6 w-6" /></span>
               <span className="text-xs font-bold sm:text-sm">{t(role)}</span>
             </button>
@@ -96,7 +96,7 @@ export default function Login() {
         {error && <div className="rounded-2xl bg-red-50 px-4 py-3 text-sm font-semibold text-red-600">{error}</div>}
         <Button type="submit" size="lg" loading={loading} className="w-full">{t('login')}</Button>
       </form>
-      <p className="mt-6 text-center text-sm text-fg/60">{t('noAccount')} <Link to="/register" className="font-bold text-fuchsia-600">{t('register')}</Link></p>
+      <p className="mt-6 text-center text-sm text-fg/60">{t('noAccount')} <Link to="/register" className="font-bold text-violet-600">{t('register')}</Link></p>
     </AuthLayout>
   )
 }

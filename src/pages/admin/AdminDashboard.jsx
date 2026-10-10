@@ -39,7 +39,7 @@ export default function AdminDashboard() {
       <div className="grid gap-5 lg:grid-cols-3">
         <Card className="p-6">
           <h2 className="mb-4 font-extrabold">{t('users')}</h2>
-          {[['superadmin', Crown, 'from-amber-400 to-orange-500'], ['organizer', Briefcase, 'from-violet-500 to-fuchsia-500'], ['member', User, 'from-cyan-500 to-emerald-500']].map(([r, Icon, g]) => (
+          {[['superadmin', Crown, 'from-amber-400 to-amber-500'], ['organizer', Briefcase, 'from-violet-400 to-violet-600'], ['member', User, 'from-emerald-400 to-emerald-500']].map(([r, Icon, g]) => (
             <div key={r} className="flex items-center gap-3 py-2">
               <div className={cx('grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br text-white', g)}><Icon className="h-5 w-5" /></div>
               <div className="flex-1 font-bold">{t(r)}</div>
@@ -63,7 +63,7 @@ export default function AdminDashboard() {
           </div>
         </Card>
         <Card className="p-6">
-          <div className="mb-4 flex items-center justify-between"><h2 className="font-extrabold">{t('recentUsers')}</h2><Link to="/admin/users" className="text-fuchsia-600"><ArrowRight className="h-5 w-5 flip-rtl" /></Link></div>
+          <div className="mb-4 flex items-center justify-between"><h2 className="font-extrabold">{t('recentUsers')}</h2><Link to="/admin/users" className="text-violet-600"><ArrowRight className="h-5 w-5 flip-rtl" /></Link></div>
           <div className="space-y-2.5">
             {s.recent_users.map((u) => (
               <div key={u.id} className="flex items-center gap-3">

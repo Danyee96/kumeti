@@ -37,12 +37,12 @@ if (!$installed && ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Kumeti installer</title>
 <style>
-*{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:#0F0A1F;color:#F5F3FF;display:grid;place-items:center;padding:24px;background-image:radial-gradient(circle at 20% 10%,rgba(124,58,237,.45),transparent 40%),radial-gradient(circle at 90% 90%,rgba(249,115,22,.35),transparent 40%)}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:#0F0A1F;color:#F5F3FF;display:grid;place-items:center;padding:24px;background-image:radial-gradient(circle at 20% 10%,rgba(108,92,231,.45),transparent 40%),radial-gradient(circle at 90% 90%,rgba(169,155,248,.35),transparent 40%)}
 .card{width:100%;max-width:460px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:24px;padding:32px;backdrop-filter:blur(12px)}
-h1{margin:0 0 4px;font-size:30px;background:linear-gradient(90deg,#A78BFA,#EC4899,#F97316);-webkit-background-clip:text;color:transparent}
+h1{margin:0 0 4px;font-size:30px;background:linear-gradient(90deg,#C9BFFC,#8576F2,#6C5CE7);-webkit-background-clip:text;color:transparent}
 p{color:#C4B5FD;margin:0 0 20px;line-height:1.6}label{display:block;font-size:13px;margin:14px 0 6px;color:#DDD6FE}
 input,select{width:100%;padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.15);background:rgba(0,0,0,.3);color:#fff;font-size:15px}
-button,a.btn{display:block;width:100%;margin-top:22px;padding:14px;border:0;border-radius:14px;font-size:16px;font-weight:700;color:#fff;cursor:pointer;text-align:center;text-decoration:none;background:linear-gradient(90deg,#7C3AED,#EC4899,#F97316)}
+button,a.btn{display:block;width:100%;margin-top:22px;padding:14px;border:0;border-radius:14px;font-size:16px;font-weight:700;color:#fff;cursor:pointer;text-align:center;text-decoration:none;background:linear-gradient(90deg,#A99BF8,#8576F2,#6C5CE7)}
 .err{background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.4);padding:12px;border-radius:12px;color:#FCA5A5;font-size:14px}
 .ok{background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.4);padding:14px;border-radius:12px;color:#A7F3D0;font-size:14px;line-height:1.7}
 code{background:rgba(0,0,0,.35);padding:2px 6px;border-radius:6px}.row{display:grid;grid-template-columns:2fr 1fr;gap:10px}

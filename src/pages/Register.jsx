@@ -33,7 +33,7 @@ export default function Register() {
         {error && <div className="rounded-2xl bg-red-50 px-4 py-3 text-sm font-semibold text-red-600">{error}</div>}
         <Button type="submit" size="lg" loading={loading} className="w-full">{t('register')}</Button>
       </form>
-      <p className="mt-6 text-center text-sm text-fg/60">{t('haveAccount')} <Link to="/login" className="font-bold text-fuchsia-600">{t('login')}</Link></p>
+      <p className="mt-6 text-center text-sm text-fg/60">{t('haveAccount')} <Link to="/login" className="font-bold text-violet-600">{t('login')}</Link></p>
     </AuthLayout>
   )
 }

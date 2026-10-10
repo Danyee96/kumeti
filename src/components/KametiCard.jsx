@@ -33,7 +33,7 @@ export default function KametiCard({ k, extra }) {
         <Progress value={(done / n(k.slots)) * 100} />
         <div className="flex items-center justify-between text-sm font-bold">
           <span>{t('roundOf', { r: cur, t: k.slots })}</span>
-          <span className="flex items-center gap-1 text-fuchsia-600">{t('view')}<ChevronRight className="h-4 w-4 flip-rtl transition group-hover:translate-x-0.5" /></span>
+          <span className="flex items-center gap-1 text-violet-600">{t('view')}<ChevronRight className="h-4 w-4 flip-rtl transition group-hover:translate-x-0.5" /></span>
         </div>
         {extra}
       </div>

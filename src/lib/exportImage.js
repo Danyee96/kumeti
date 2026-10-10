@@ -4,7 +4,7 @@ import { n, money, roundLabel, frac, numbersLabel } from './kameti'
 
 const W = 1080
 const PAD = 64
-const C = { ink: '#0F0A1F', ink2: '#1A1330', violet: '#7C3AED', pink: '#EC4899', orange: '#F97316', white: '#FFFFFF', mute: 'rgba(255,255,255,.62)', faint: 'rgba(255,255,255,.08)', line: 'rgba(255,255,255,.12)', green: '#10B981', gold: '#FBBF24' }
+const C = { ink: '#0F0A1F', ink2: '#1A1330', violet: '#A99BF8', pink: '#8576F2', orange: '#6C5CE7', white: '#FFFFFF', mute: 'rgba(255,255,255,.62)', faint: 'rgba(255,255,255,.08)', line: 'rgba(255,255,255,.12)', green: '#10B981', gold: '#FBBF24' }
 
 async function loadFonts(lang) {
   const list = ['800 40px "Plus Jakarta Sans"', '600 40px "Plus Jakarta Sans"', '700 40px "Space Grotesk"']
@@ -61,9 +61,9 @@ function painter(ctx, lang) {
 function background(ctx, H) {
   ctx.fillStyle = C.ink; ctx.fillRect(0, 0, W, H)
   const blob = (x, y, r, color) => { const g = ctx.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, color); g.addColorStop(1, 'rgba(15,10,31,0)'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H) }
-  blob(120, 80, 700, 'rgba(124,58,237,.55)')
-  blob(1000, 220, 600, 'rgba(236,72,153,.40)')
-  blob(700, H, 700, 'rgba(249,115,22,.30)')
+  blob(120, 80, 700, 'rgba(108,92,231,.55)')
+  blob(1000, 220, 600, 'rgba(133,118,242,.40)')
+  blob(700, H, 700, 'rgba(108,92,231,.30)')
   ctx.strokeStyle = 'rgba(255,255,255,.035)'; ctx.lineWidth = 1
   for (let x = 0; x < W; x += 54) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke() }
   for (let y = 0; y < H; y += 54) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke() }
