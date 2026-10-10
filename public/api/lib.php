@@ -165,7 +165,7 @@ function seed_demo(PDO $pdo): void {
 
     $start = date('Y-m-01', strtotime('-2 months'));
     $k = $pdo->prepare('INSERT INTO kametis (organizer_id,title,type,frequency,amount,slots,start_date,status,config,notes,created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?)');
-    $k->execute([$orgId, 'Mohalla Committee 2026', 'qurandazi', 'monthly', 10000, 6, $start, 'active',
+    $k->execute([$orgId, 'Mohalla Kameti 2026', 'qurandazi', 'monthly', 10000, 6, $start, 'active',
         json_encode(['draw_mode' => 'all_at_once', 'due_day' => 5, 'late_fee' => 200, 'organizer_fee' => 0]), 'Demo kameti', now()]);
     $kid = (int)$pdo->lastInsertId();
     // Bilal holds 2 numbers, number 4 is split between Sana and Usman.

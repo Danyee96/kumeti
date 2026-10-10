@@ -197,7 +197,7 @@ function WhenStep({ f, set }) {
     <div className="space-y-4">
       <h1 className="text-2xl font-extrabold sm:text-3xl">{t('whatName')}</h1>
       <Card className="space-y-4 p-4 sm:p-6">
-        <Field label={t('kametiName')}><Input className="h-14 text-lg font-bold" value={f.title} onChange={(e) => set('title', e.target.value)} placeholder="Mohalla Committee 2026" /></Field>
+        <Field label={t('kametiName')}><Input className="h-14 text-lg font-bold" value={f.title} onChange={(e) => set('title', e.target.value)} placeholder="Mohalla Kameti 2026" /></Field>
         <Segmented value={f.frequency} onChange={(v) => set('frequency', v)} options={['monthly', 'weekly', 'daily'].map((v) => ({ value: v, label: t(v) }))} />
       </Card>
       {f.frequency === 'monthly' ? (

@@ -1,4 +1,4 @@
-# Kumeti — smart committee (ROSCA) app
+# Kumeti — smart Kameti (ROSCA) app
 
 React (Vite + Tailwind) frontend + PHP API + MySQL. Runs on **any Hostinger web hosting plan** (Premium / Business / Cloud) — **no VPS, no Node server needed**. Node is only used on your computer / GitHub to build.
 

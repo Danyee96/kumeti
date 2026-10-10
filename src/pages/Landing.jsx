@@ -331,7 +331,7 @@ function HeroPhone() {
           <div className="px-5 pb-6">
             <div className="flex items-center justify-between py-2"><Logo size={26} /><span className="chip bg-emerald-100 text-emerald-700">● Live</span></div>
             <div className="relative mt-2 overflow-hidden rounded-3xl bg-baari p-5 text-white shadow-glow">
-              <div className="text-xs font-semibold text-white/80">Mohalla Committee</div>
+              <div className="text-xs font-semibold text-white/80">Mohalla Kameti</div>
               <div className="num mt-1 text-3xl font-bold">{money(600000)}</div>
               <div className="mt-1 text-xs text-white/80">Rs 50,000 × 12 · {lakh(600000)}</div>
               <div className="mt-4 h-2 rounded-full bg-white/25"><div className="h-full w-1/3 rounded-full bg-white" /></div>

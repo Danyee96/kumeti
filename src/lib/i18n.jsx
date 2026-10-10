@@ -16,7 +16,7 @@ const en = {
   hello: 'Assalam o Alaikum', overview: 'Overview',
   totalUsers: 'Total users', totalKametis: 'Total kametis', activeKametis: 'Active kametis', totalVolume: 'Total volume',
   collected: 'Collected', pending: 'Pending', members: 'Members', payments: 'Payments', turns: 'Turns', payouts: 'Payouts',
-  amount: 'Amount', perMember: 'Per member', pot: 'Committee amount', duration: 'Duration', rounds: 'Rounds', round: 'Round',
+  amount: 'Amount', perMember: 'Per member', pot: 'Kameti amount', duration: 'Duration', rounds: 'Rounds', round: 'Round',
   startDate: 'Start date', endDate: 'End date', frequency: 'Frequency', type: 'Type', status: 'Status', title: 'Kameti name',
   monthly: 'Monthly', weekly: 'Weekly', daily: 'Daily', months: 'months', weeks: 'weeks', days: 'days',
   active: 'Active', completed: 'Completed', paused: 'Paused', disabled: 'Disabled',

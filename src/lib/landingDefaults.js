@@ -6,8 +6,8 @@ export const LANDING_ICONS = ['Dices', 'ShieldCheck', 'BellRing', 'Languages', '
 export const LANDING_DEFAULTS = {
   hero: {
     show: true,
-    badge: L("Pakistan's smart committee app", 'پاکستان کی اسمارٹ کمیٹی ایپ'),
-    title: L('Committee, ab', 'کمیٹی، اب'),
+    badge: L("Pakistan's smart kameti app", 'پاکستان کی اسمارٹ کمیٹی ایپ'),
+    title: L('Kameti, ab', 'کمیٹی، اب'),
     highlight: L('smart.', 'اسمارٹ۔'),
     subtitle: L(
       'Run your kameti without registers, arguments or forgotten payments. Fair qurandazi in one tap, every payment tracked, everyone knows their baari.',
@@ -32,7 +32,7 @@ export const LANDING_DEFAULTS = {
   },
   features: {
     show: true,
-    title: L('Everything a committee needs', 'کمیٹی کی ہر ضرورت'),
+    title: L('Everything a kameti needs', 'کمیٹی کی ہر ضرورت'),
     subtitle: L('Built for mohallas, offices, shops and families. So simple anyone can use it.', 'محلے، دفتر، دکان اور خاندان کے لیے۔ اتنی آسان کہ ہر کوئی چلا لے۔'),
     items: [
       { icon: 'Dices', title: L('Fair qurandazi', 'منصفانہ قرعہ اندازی'), desc: L('One tap shuffle gives every member a random turn. No doubts, no favourites.', 'ایک بٹن سے سب کو بے ترتیب باری۔ کوئی شک نہیں، کوئی پسند ناپسند نہیں۔') },
@@ -62,9 +62,9 @@ export const LANDING_DEFAULTS = {
     show: true,
     title: L('Loved by organizers', 'آرگنائزرز کی پسند'),
     items: [
-      { name: 'Shazia Parveen', city: 'Lahore', quote: L('I ran 3 committees in registers. Now everything is on my phone and nobody argues about turns.', 'میں رجسٹر میں 3 کمیٹیاں چلاتی تھی۔ اب سب فون پر ہے اور باری پر کوئی جھگڑا نہیں۔') },
-      { name: 'Haji Rasheed', city: 'Faisalabad', quote: L('Our market boli committee was always confusing. Kumeti calculates the discount itself.', 'ہماری مارکیٹ کی بولی کمیٹی ہمیشہ الجھن تھی۔ اب رعایت کا حساب خود ہو جاتا ہے۔') },
-      { name: 'Areeba Khan', city: 'Karachi', quote: L('Office committee with 20 people, reminders on WhatsApp in one tap. Brilliant.', '20 لوگوں کی دفتر کمیٹی، ایک بٹن سے واٹس ایپ یاد دہانی۔ کمال۔') },
+      { name: 'Shazia Parveen', city: 'Lahore', quote: L('I ran 3 kametis in registers. Now everything is on my phone and nobody argues about turns.', 'میں رجسٹر میں 3 کمیٹیاں چلاتی تھی۔ اب سب فون پر ہے اور باری پر کوئی جھگڑا نہیں۔') },
+      { name: 'Haji Rasheed', city: 'Faisalabad', quote: L('Our market boli kameti was always confusing. Kumeti calculates the discount itself.', 'ہماری مارکیٹ کی بولی کمیٹی ہمیشہ الجھن تھی۔ اب رعایت کا حساب خود ہو جاتا ہے۔') },
+      { name: 'Areeba Khan', city: 'Karachi', quote: L('Office kameti with 20 people, reminders on WhatsApp in one tap. Brilliant.', '20 لوگوں کی دفتر کمیٹی، ایک بٹن سے واٹس ایپ یاد دہانی۔ کمال۔') },
     ],
   },
   faq: {
@@ -79,7 +79,7 @@ export const LANDING_DEFAULTS = {
   },
   cta: {
     show: true,
-    title: L('Your next committee starts here', 'آپ کی اگلی کمیٹی یہاں سے'),
+    title: L('Your next kameti starts here', 'آپ کی اگلی کمیٹی یہاں سے'),
     subtitle: L('Free for organizers. Ready in minutes.', 'آرگنائزرز کے لیے مفت۔ منٹوں میں تیار۔'),
     button: L('Create my kameti', 'میری کمیٹی بنائیں'),
   },
